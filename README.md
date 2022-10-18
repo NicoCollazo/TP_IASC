@@ -3,7 +3,7 @@
 ## Insctructions to run the app
 
 1. Create an `environments` folder.
-2. Create your `.env` files:
+2. Create your `.env` files inside the environments folder:
    1. `.env.app` expects the following vars:
        - MONGO_USERNAME=some_username
        - MONGO_PASSWORD=some_pass
