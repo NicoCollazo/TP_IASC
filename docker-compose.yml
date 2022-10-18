@@ -7,9 +7,6 @@ services:
       - ./environments/.env.mongo
     volumes:
       - "./data/db:/data/db"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
   app:
     build: .
     image: ramiro/tp_iasc
@@ -19,16 +16,5 @@ services:
       - "8080:8080"
     env_file:
       - ./environments/.env.app
-    # Monta los logs del container en la carpeta /logs/container_logs
     volumes:
       - "./logs/container_logs:/usr/src/app/logs"
-    environment:
-      MONGO_USERNAME: ${MONGO_USERNAME}
-      MONGO_PASSWORD: ${MONGO_PASSWORD}
-      MONGO_PORT: ${MONGO_PORT}
-      MONGO_SERVICE_URL: db
-      MONGO_DB_NAME: ${MONGO_DB_NAME}
-      PORT: ${PORT}
-      CACHE_TTL: ${CACHE_TTL}
-      TOKEN_TTL: ${TOKEN_TTL}
-      TOKEN_SECRET: ${TOKEN_SECRET}
