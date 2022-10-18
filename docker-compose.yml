@@ -19,6 +19,9 @@ services:
       - "8080:8080"
     env_file:
       - ./environments/.env.app
+    # Monta los logs del container en la carpeta /logs/container_logs
+    volumes:
+      - "./logs/container_logs:/usr/src/app/logs"
     environment:
       MONGO_USERNAME: ${MONGO_USERNAME}
       MONGO_PASSWORD: ${MONGO_PASSWORD}

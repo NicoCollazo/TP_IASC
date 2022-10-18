@@ -1,6 +1,6 @@
 # Js
 node_modules/
-
+logs/
 
 # Db
 data/
