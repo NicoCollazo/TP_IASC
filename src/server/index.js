@@ -1,5 +1,5 @@
 const express = require("express");
-const startDatabase = require("./database");
+const { startDatabase, checkDatabaseConnection } = require("./database");
 
 const initApp = (app) => {
   // For app configurations.
@@ -7,4 +7,4 @@ const initApp = (app) => {
   app.use(express.json());
 };
 
-module.exports = { initApp, startDatabase };
+module.exports = { initApp, startDatabase, checkDatabaseConnection };

@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 
-const { initApp, startDatabase } = require("./server");
+const { initApp, startDatabase, checkDatabaseConnection } = require("./server");
 const router = require("./routers");
 const getLogger = require("./utils/logger");
 const logger = getLogger(__filename);
@@ -9,6 +9,8 @@ const logger = getLogger(__filename);
 dotenv.config();
 
 startDatabase();
+
+setInterval(checkDatabaseConnection, process.env.DB_CONNECTION_TIMEOUT);
 
 const app = express();
 const port = process.env.PORT;

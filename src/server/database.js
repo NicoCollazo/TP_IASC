@@ -30,4 +30,12 @@ const startDatabase = () => {
     });
 };
 
-module.exports = startDatabase;
+const checkDatabaseConnection = () => {
+  if ([0, 3].includes(Number(mongoose.connection.readyState))) {
+    logger.info({ message: "Database disconnected, trying to reconnect..." });
+    startDatabase();
+    retry = 0;
+  }
+};
+
+module.exports = { startDatabase, checkDatabaseConnection };
