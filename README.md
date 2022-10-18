@@ -19,4 +19,4 @@
         - MONGO_PASSWORD=some_pass
         - MONGO_PORT=27017
         - MONGO_DB_NAME=test
-3. Run docker compose up.
+3. Run `docker compose up`.
