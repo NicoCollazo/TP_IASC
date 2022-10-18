@@ -1,0 +1,8 @@
+# Js
+node_modules/
+
+
+# IDE
+.vscode
+.idea
+.env
