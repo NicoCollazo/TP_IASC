@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    env_file:
+      - ./environments/.env.mongo
+    volumes:
+      - "./data/db:/data/db"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+  app:
+    build: .
+    image: ramiro/tp_iasc
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./environments/.env.app
+    environment:
+      MONGO_USERNAME: ${MONGO_USERNAME}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_PORT: ${MONGO_PORT}
+      MONGO_SERVICE_URL: db
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+      PORT: ${PORT}
+      CACHE_TTL: ${CACHE_TTL}
+      TOKEN_TTL: ${TOKEN_TTL}
+      TOKEN_SECRET: ${TOKEN_SECRET}

@@ -2,7 +2,13 @@
 node_modules/
 
 
+# Db
+data/
+
 # IDE
 .vscode
 .idea
+
+# Env
 .env
+environments/

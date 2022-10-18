@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js",
+    "start-dev": "nodemon src/index.js",
+    "test": "mocha --exit",
+    "gen-test-reports": "mocha --exit --reporter mocha-junit-reporter --reporter-options mochaFile=./reports/tests.xml"
   },
   "repository": {
     "type": "git",
@@ -15,5 +18,17 @@
   "bugs": {
     "url": "https://github.com/NicoCollazo/TP_IASC/issues"
   },
-  "homepage": "https://github.com/NicoCollazo/TP_IASC#readme"
+  "homepage": "https://github.com/NicoCollazo/TP_IASC#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^8.5.1",
+    "mocha": "^10.1.0",
+    "mongoose": "^6.6.5",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
 }
