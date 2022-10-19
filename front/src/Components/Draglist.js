@@ -122,6 +122,7 @@ function DragList() {
         );
         listCopy[result.source.droppableId] = newSourceList;
         const destinationList = listCopy[result.destination.droppableId];
+        removedElement["list"] = result.destination.droppableId
         listCopy[result.destination.droppableId] = addToList(
             destinationList,
             result.destination.index,
