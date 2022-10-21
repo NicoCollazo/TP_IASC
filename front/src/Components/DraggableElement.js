@@ -50,7 +50,11 @@ const DraggableElement = ({ prefix, elements, handleAdd, handleChangeItem, handl
         sx={{justifyContent: "left !important",
           color: 'rgb(136 136 136)',
           backgroundColor:"transparent !important",
-          boxShadow: 'none'
+          boxShadow: 'none',
+          '&:hover': {
+            backgroundColor: '#efeeee !important',
+            boxShadow: 'none',
+          },
         }}
       >
         New

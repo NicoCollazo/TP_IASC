@@ -11,6 +11,9 @@ import Container from '@mui/material/Container'
 import IconButton from '@mui/material/IconButton';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Box from '@mui/material/Box';
+import { IoTrashOutline, TiPencil } from 'react-icons/all';
+import Tooltip from '@mui/material/Tooltip'
+
 
 const ListItem = ({ item, index, handleChangeItem, handleEdit, handleDelete }) => {
   const [hover, setHover] = useState("none");
@@ -39,46 +42,88 @@ const ListItem = ({ item, index, handleChangeItem, handleEdit, handleDelete }) =
         variant="standard"
         InputProps={{
           disableUnderline: true,
+          style:{fontWeight: "bold"}
         }}
         sx={{paddingTop:"7.5px", paddingBottom: "3.5px", paddingX: "14px"}}
-      />
+        />
       </Container>
       )
     } else {
       return (
-        <Container sx={{ paddingLeft:"0px !important", position: "relative"}}>
-          <Typography sx={{padding:"8.5px 14px"}}>
+        <Container sx={{ 
+            paddingLeft:"0px !important",
+            position: "relative",
+            '&:hover': {
+              backgroundColor: '#f9f8f9',
+              boxShadow: 'none',
+            },
+          }}
+        >
+          <Typography sx={{padding:"8.5px 14px", fontWeight: "bold"}}>
             {item.content}
           </Typography>
           <Box>
             <ButtonGroup 
               variant="contained" 
               aria-label="outlined primary button group" 
-              sx={{position: "absolute", top: 4, right: 4, display: hover }}
-            
+              sx={{position: "absolute", top: "20%", right: 8, display: hover }}
             >
-              <IconButton 
-                onClick={() => handleEdit(item, true)}
-                size="small"
-                aria-label="edit" 
-                sx={{
-                  color: 'rgb(136 136 136)',
-                  borderRadius: 0
+              <Tooltip 
+                title="Edit" 
+                placement="top"
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      p:1,
+                      bgcolor: 'common.black',
+                      '& .MuiTooltip-arrow': {
+                        color: 'common.black',
+                      },
+                    },
+                  },
                 }}
               >
-                <EditIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => handleDelete(item)}
-                aria-label="delete" 
-                size="small"
-                sx={{
-                  color: 'rgb(136 136 136)',
-                  borderRadius: 0
-                }}
+                <IconButton 
+                  onClick={() => handleEdit(item, true)}
+                  size="small"
+                  aria-label="edit"
+                  key="editButton"
+                  sx={{
+                    color: 'rgb(136 136 136)',
+                    borderRadius: 0
+                  }} 
                 >
-                <DeleteIcon />
-              </IconButton>
+                  <TiPencil />
+                </IconButton>
+              </Tooltip>
+              <Tooltip 
+                title="Delete"
+                placement="top"
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      p: 1, 
+                      bgcolor: 'common.black',
+                      '& .MuiTooltip-arrow': {
+                        color: 'common.black',
+                      },
+                    },
+                  },
+                }}
+              >
+              <IconButton
+                  onClick={() => handleDelete(item)}
+                  aria-label="delete" 
+                  size="small"
+                  key="trashButton"
+                  sx={{
+                    color: 'rgb(136 136 136)',
+                    borderRadius: 0
+                  }}
+                  >
+                  <IoTrashOutline />
+                </IconButton>
+              </Tooltip>  
             </ButtonGroup>
           </Box>
           
@@ -110,9 +155,9 @@ const ListItem = ({ item, index, handleChangeItem, handleEdit, handleDelete }) =
               onMouseOver={()=> setHover('block')} 
               onMouseOut={()=> setHover('none')} 
             >
-                <CardContent sx={{ padding: '0px !important', paddingBottom: 0, minHeight: 42 }}>
-                  {renderContent(item)}
-                </CardContent>
+              <CardContent sx={{ padding: '0px !important', paddingBottom: 0, minHeight: 42 }}>
+                {renderContent(item)}
+              </CardContent>
             </Card>
           </Box>
         );

@@ -3,11 +3,7 @@ import styled from "styled-components";
 import { DragDropContext } from "react-beautiful-dnd";
 import DraggableElement from "./DraggableElement";
 import {Container, Typography, AppBar, Toolbar, Box} from '@mui/material'
-import DoneIcon from '@mui/icons-material/Done';
-import EngineeringIcon from '@mui/icons-material/Engineering';
-import PendingActionsIcon from '@mui/icons-material/PendingActions';
-import Done from "@mui/icons-material/Done";
-
+import { FaList, IoMdConstruct, MdOutlineDoneOutline } from 'react-icons/all';
 const DragDropContextContainer = styled.div`
   padding: 20px;
   border-radius: 6px;
@@ -46,17 +42,17 @@ const lists = [
     {
         name: "To Do",
         color: "#fee2dc",
-        icon: <PendingActionsIcon color="action"/>,
+        icon: <FaList color="action"/>,
     },
     {
         name: "Doing",
         color: "#fcecc9",
-        icon: <EngineeringIcon color="primary"/>,
+        icon: <IoMdConstruct color="primary"/>,
     },
     {
         name: "Done",
         color: "#daedda",
-        icon: <Done color="primary"/>
+        icon: <MdOutlineDoneOutline color="primary"/>
     }
 ];
 
@@ -98,8 +94,12 @@ function DragList() {
     function handleEdit(item, editing) {
         const elementsCopy = { ...elements };
         let elementIndex = elementsCopy[item.list].findIndex(i => i.id === item.id)
-        elementsCopy[item.list][elementIndex].editing = editing
-        setElements(elementsCopy)
+        if(elementsCopy[item.list][elementIndex].content !== ""){
+          elementsCopy[item.list][elementIndex].editing = editing
+          setElements(elementsCopy)
+        } else {
+          handleDelete(item)
+        }
     }
 
     function handleDelete(item){
@@ -114,15 +114,16 @@ function DragList() {
             return;
         }
         const listCopy = { ...elements };
-
         const sourceList = listCopy[result.source.droppableId];
         const [removedElement, newSourceList] = removeFromList(
             sourceList,
             result.source.index
         );
+        
         listCopy[result.source.droppableId] = newSourceList;
         const destinationList = listCopy[result.destination.droppableId];
-        removedElement["list"] = result.destination.droppableId
+        removedElement["list"] = result.destination.droppableId;
+
         listCopy[result.destination.droppableId] = addToList(
             destinationList,
             result.destination.index,
