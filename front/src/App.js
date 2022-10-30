@@ -1,6 +1,5 @@
-import React from "react";
-import DragList from "./components/Draglist";
-import { SocketContext, socket } from "./context/socket";
+import { Link } from "react-router-dom";
+
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
@@ -8,9 +7,10 @@ import "@fontsource/roboto/700.css";
 
 function App() {
 	return (
-		<SocketContext.Provider value={socket}>
-			<DragList />
-		</SocketContext.Provider>
+		<>
+			<div>Welcome to our Todo List App</div>
+			<Link to="/login">Login</Link>
+		</>
 	);
 }
 

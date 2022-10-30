@@ -1,5 +1,6 @@
 const http = require("http");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const express = require("express");
 const { Server } = require("socket.io");
 
@@ -8,16 +9,26 @@ const logger = getLogger(__filename);
 dotenv.config();
 
 const app = express();
-const io_port = process.env.IO_PORT || "8001";
+const io_port = process.env.IO_PORT || "8081";
 
-const server = http.createServer(app);
+app.use(cors());
+const server = http.createServer(app, {
+	cors: {
+		origin: '*',
+		withCredentials: true,
+	}
+});
 const io = new Server(server);
 
 // Initialize Socket Server.
 server.listen(io_port);
 const { WorkspaceManager, TaskManager } = require("./controllers");
 
-const workspaceManagerInstance = new WorkspaceManager();
+const workspaceManagerInstance = new WorkspaceManager([{
+	name: "test",
+	owner: "Ramiro",
+	shared: []
+}]);
 const tasksManagerInstance = new TaskManager();
 
 // Initializing the socket io connection
