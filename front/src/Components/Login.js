@@ -1,7 +1,40 @@
 import { Formik, Field, Form } from "formik";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-const Login = ({ setToken }) => {
+const AUTH_URL = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_API_PORT}/api/auth`;
+
+const Login = () => {
+	const navigate = useNavigate();
+
+	const handleOnSubmit = (values) => {
+		fetch(AUTH_URL, {
+			method: "POST",
+			headers: {
+				"Access-Control-Allow-Origin": "http://localhost:3000",
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+			body: JSON.stringify(values),
+		})
+			.then((res) => {
+				res
+					.json()
+					.then((resBody) => {
+						if (resBody.token !== undefined) {
+							navigate("/workspace");
+						}
+						// Display error message.
+					})
+					.catch((err) => {
+						// Display error message.
+					});
+			})
+			.catch((err) => {
+				// Display error message.
+			});
+	};
+
 	return (
 		<>
 			<Header></Header>
@@ -10,21 +43,7 @@ const Login = ({ setToken }) => {
 					username: "",
 					password: "",
 				}}
-				onSubmit={async (values) => {
-					try {
-						const data = await fetch("http://localhost:8080/api/auth", {
-							method: "POST",
-							headers: {
-								"Access-Control-Allow-Origin": "*",
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify(values),
-						});
-						setToken(data.token);
-					} catch {
-						setToken(null);
-					}
-				}}
+				onSubmit={handleOnSubmit}
 			>
 				<Form>
 					<label htmlFor="username">Username</label>
