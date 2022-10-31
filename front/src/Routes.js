@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import App from "./App";
@@ -7,17 +6,15 @@ import Workspace from "./components/Workspace";
 import Workspaces from "./components/Workspaces";
 
 const Router = () => {
-	const [token, setToken] = useState(null);
-
 	return (
 		<Routes>
 			<Route path="/" element={<App />} />
-			<Route path="/login" element={<Login setToken={setToken} />} />
+			<Route path="/login" element={<Login />} />
 			<Route path="/workspace">
-				<Route index element={<Workspaces token={token} />} />
-				<Route path=":workspaceName" element={<Workspace token={token} />} />
+				<Route index element={<Workspaces />} />
+				<Route path=":workspaceName" element={<Workspace />} />
 			</Route>
-		</Routes >
+		</Routes>
 	);
 };
 

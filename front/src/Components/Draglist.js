@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import React, { useEffect, useContext } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
 
@@ -65,7 +65,7 @@ const generateLists = () =>
 		{}
 	);
 
-function DragList({ userToken, workspaceName }) {
+function DragList({ workspaceName }) {
 	const [elements, setElements] = React.useState(generateLists());
 	const socket = useContext(SocketContext);
 
