@@ -4,37 +4,44 @@ const cors = require("cors");
 const express = require("express");
 const { Server } = require("socket.io");
 
+const router = require("./routers");
+const { initApp } = require("./server");
 const getLogger = require("./utils/logger");
 const logger = getLogger(__filename);
 dotenv.config();
 
 const app = express();
 const io_port = process.env.IO_PORT || "8081";
+const api_port = process.env.PORT || "8080";
 
-app.use(cors());
-const server = http.createServer(app, {
-	cors: {
-		origin: '*',
-		withCredentials: true,
-	}
+initApp(app);
+app.use(cors({ origin: "*" }));
+app.use("/api", router);
+app.listen(api_port);
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+	cors: { origin: "http://localhost:3000", credentials: true },
 });
-const io = new Server(server);
-
-// Initialize Socket Server.
 server.listen(io_port);
-const { WorkspaceManager, TaskManager } = require("./controllers");
 
-const workspaceManagerInstance = new WorkspaceManager([{
-	name: "test",
-	owner: "Ramiro",
-	shared: []
-}]);
+const { WorkspaceManager, TaskManager } = require("./controllers");
+const test_workspaces = [
+	{
+		name: "test",
+		owner: "Ramiro",
+		shared: [],
+	},
+];
+
+const workspaceManagerInstance = new WorkspaceManager(test_workspaces);
 const tasksManagerInstance = new TaskManager();
 
 // Initializing the socket io connection
 io.on("connection", (socket) => {
-	socket.on("login", () => {
-		logger.info("new login");
+	socket.on("allWorkspaces", () => {
+		logger.info("New Connection");
 		// Returns list of all workspaces within the organization
 		io.emit("allWorkspaces", workspaceManagerInstance.getAll());
 	});

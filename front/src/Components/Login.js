@@ -7,24 +7,33 @@ const Login = ({ setToken }) => {
 			<Header></Header>
 			<Formik
 				initialValues={{
-					username: '',
-					password: '',
+					username: "",
+					password: "",
 				}}
 				onSubmit={async (values) => {
-					// Fetch to the backend for token.
-					// await new Promise((r) => setTimeout(r, 500));
-					// setToken(data.token)
+					try {
+						const data = await fetch("http://localhost:8080/api/auth", {
+							method: "POST",
+							headers: {
+								"Access-Control-Allow-Origin": "*",
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(values),
+						});
+						setToken(data.token);
+					} catch {
+						setToken(null);
+					}
 				}}
 			>
 				<Form>
 					<label htmlFor="username">Username</label>
 					<Field id="username" name="username" placeholder="Jane" />
-
 					<label htmlFor="password">Password</label>
 					<Field
 						id="password"
 						name="password"
-						placeholder="jane@acme.com"
+						placeholder="password"
 						type="password"
 					/>
 					<button type="submit">Submit</button>

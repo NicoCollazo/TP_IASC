@@ -1,3 +1,3 @@
-const User = require('./user')
+const UserDb = require('./localuserdb')
 
-module.exports = { User }
+module.exports = { UserDb }
