@@ -25,8 +25,17 @@ class WorkspaceManager {
 		return workspace;
 	};
 
+	_getSharedWorkspaces = (username) => {
+		return this._workspaces.filter((w) => w.shared.includes(username));
+	};
+
 	getByUsername = (username) => {
-		return this._workspaces.filter((w) => username === w.owner);
+		return [
+			// Workspaces the user owns.
+			...this._workspaces.filter((w) => username === w.owner),
+			// Workspaces shared to the user.
+			...this._getSharedWorkspaces(username),
+		];
 	};
 
 	getAll = () => {
