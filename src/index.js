@@ -31,6 +31,11 @@ const test_workspaces = [
 	{
 		name: "test",
 		owner: "Jorge",
+		shared: ["Ramiro"],
+	},
+	{
+		name: "test2",
+		owner: "Ramiro",
 		shared: [],
 	},
 ];

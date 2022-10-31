@@ -35,7 +35,7 @@ class WorkspaceManager {
 			...this._workspaces.filter((w) => username === w.owner),
 			// Workspaces shared to the user.
 			...this._getSharedWorkspaces(username),
-		];
+		].sort();
 	};
 
 	getAll = () => {
