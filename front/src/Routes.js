@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Route, Routes } from "react-router-dom";
-
 import App from "./App";
-import Login from "./components/Login";
-import Workspace from "./components/Workspace";
-import Workspaces from "./components/Workspaces";
+import DragList from "./Components/Draglist";
+import Login from "./Components/Login";
+import Workspace from "./Components/Workspace";
+import Workspaces from "./Components/Workspaces";
 
 const Router = () => {
 	const [token, setToken] = useState(null);
