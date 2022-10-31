@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
+import { useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 
 import { SocketContext } from "../context/socket";
@@ -7,6 +8,7 @@ const socket_url = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP
 
 const Workspaces = () => {
 	const socket = useContext(SocketContext);
+	const navigate = useNavigate();
 	const [workspaceList, setWorkspaceList] = useState([]);
 
 	// Load the list of previously created workspaces once during the first rendering
@@ -15,6 +17,12 @@ const Workspaces = () => {
 		socket.disconnect().connect(socket_url, {
 			withCredentials: true,
 			forceNew: true,
+		});
+
+		// If connection fails, we redirect to Login.
+		socket.on("connect_error", () => {
+			// TODO: Let the user know about the redirect.
+			navigate("/");
 		});
 
 		socket.emit("allWorkspaces");
