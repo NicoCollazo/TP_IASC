@@ -6,8 +6,8 @@ const { Server } = require("socket.io");
 
 const router = require("./routers");
 const { initApp } = require("./server");
-const getLogger = require("./utils/logger");
-const logger = getLogger(__filename);
+const { verifyTokenSocket } = require("./middlewares");
+const logger = require("./utils/logger")(__filename);
 dotenv.config();
 
 const app = express();
@@ -15,7 +15,7 @@ const io_port = process.env.IO_PORT || "8081";
 const api_port = process.env.PORT || "8080";
 
 initApp(app);
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use("/api", router);
 app.listen(api_port);
 
@@ -30,7 +30,7 @@ const { WorkspaceManager, TaskManager } = require("./controllers");
 const test_workspaces = [
 	{
 		name: "test",
-		owner: "Ramiro",
+		owner: "Jorge",
 		shared: [],
 	},
 ];
@@ -39,11 +39,14 @@ const workspaceManagerInstance = new WorkspaceManager(test_workspaces);
 const tasksManagerInstance = new TaskManager();
 
 // Initializing the socket io connection
+io.use(verifyTokenSocket);
 io.on("connection", (socket) => {
 	socket.on("allWorkspaces", () => {
-		logger.info("New Connection");
-		// Returns list of all workspaces within the organization
-		io.emit("allWorkspaces", workspaceManagerInstance.getAll());
+		logger.info(`User ${socket.user.username} connected`);
+		const user_workspaces = workspaceManagerInstance.getByUsername(
+			socket.user.username
+		);
+		io.emit("allWorkspaces", user_workspaces);
 	});
 
 	socket.on("openWorkspace", (workspace) => {
@@ -67,12 +70,13 @@ io.on("connection", (socket) => {
 	// Endpoint for adding new Workspace
 	socket.on("addWorkspace", (workspace) => {
 		logger.info(`Adding Workspace ${JSON.stringify(workspace)}`);
-		workspaceManagerInstance.add(workspace);
-		io.emit("newWorkspace", { workspace });
+		workspaceManagerInstance
+			.add(socket.user.username, workspace)
+			.then((w) => io.emit("newWorkspace", w));
 	});
 
 	socket.on("disconnect", () => {
-		logger.info("User disconnected");
+		logger.info(`User ${socket.user.username} disconnected`);
 	});
 });
 

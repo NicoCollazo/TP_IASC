@@ -14,9 +14,6 @@ const authenticate = async (req, res) => {
 	}
 
 	// Validate password with bcrypt.
-	// const salt = await bcrypt.genSalt(10);
-	// const pHash = await bcrypt.hash(req.body.password, salt);
-
 	const validPassword = await bcrypt.compare(
 		req.body.password,
 		user.passwordHash
@@ -37,9 +34,7 @@ const authenticate = async (req, res) => {
 
 	logger.info(`Succesfully validated User ${user.username}`);
 
-	res.header("auth-token", token).json({
-		data: { token },
-	});
+	res.cookie("auth_token", token).json({ token });
 };
 
 module.exports = authenticate;

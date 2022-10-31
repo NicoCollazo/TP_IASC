@@ -7,6 +7,8 @@
 		}
 	]
 */
+const logger = require("../utils/logger")(__filename);
+
 class WorkspaceManager {
 	constructor(workspaces) {
 		this._workspaces = workspaces || [];
@@ -16,9 +18,11 @@ class WorkspaceManager {
 		this._workspaces = workspaceList;
 	};
 
-	add = (username, workspace) => {
-		this._workspaces.push({ name: workspace, owner: username, shared: [] });
-		return "Addition Successfull";
+	add = async (username, workspaceName) => {
+		const workspace = { name: workspaceName, owner: username, shared: [] };
+		this._workspaces.push(workspace);
+		logger.info("Addition Successfull");
+		return workspace;
 	};
 
 	getByUsername = (username) => {

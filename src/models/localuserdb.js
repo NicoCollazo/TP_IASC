@@ -16,36 +16,40 @@
     }
 */
 const bcrypt = require("bcrypt");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 class UsersDb {
-    constructor(users) {
-        this._users = users || [];
-    }
+	constructor(users) {
+		this._users = users || [];
+	}
 
-    findOne = (username) => {
-        return this._users.find(u => u.username === username);
-    }
+	findOne = (username) => {
+		return this._users.find((u) => u.username === username);
+	};
 
-    register = async (username, password) => {
-        if (this.findOne(username) !== undefined) {
-            throw Error("Username already exists");
-        }
+	findById = (user_id) => {
+		return this._users.find((u) => u.id === user_id);
+	};
 
-        const salt = await bcrypt.genSalt(10);
-        const pHash = await bcrypt.hash(password, salt);
+	register = async (username, password) => {
+		if (this.findOne(username) !== undefined) {
+			throw Error("Username already exists");
+		}
 
-        const createdUser = { id: uuidv4(), username, passwordHash: pHash };
-        this._users.push(createdUser);
+		const salt = await bcrypt.genSalt(10);
+		const pHash = await bcrypt.hash(password, salt);
 
-        return createdUser;
-    }
+		const createdUser = { id: uuidv4(), username, passwordHash: pHash };
+		this._users.push(createdUser);
 
-    validate = async (username, password) => {
-        const user = this.findOne(username);
+		return createdUser;
+	};
 
-        return bcrypt.compare(password, user.passwordHash);
-    }
+	validate = async (username, password) => {
+		const user = this.findOne(username);
+
+		return bcrypt.compare(password, user.passwordHash);
+	};
 }
 
 const usersDb = new UsersDb();
