@@ -22,19 +22,20 @@ const theme = createTheme();
 
 export default function Auth() {
 	const navigate = useNavigate();
+
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
 		const data = new FormData(event.currentTarget);
 		const loginValues = {
-			user: data.get("username"),
+			username: data.get("username"),
 			password: data.get("password"),
 		};
 
 		axios
-			.post(AUTH_URL, loginValues)
+			.post(AUTH_URL, loginValues, { withCredentials: true })
 			.then((response) => {
-				if (response.token !== undefined) {
+				if (response.data.token !== undefined) {
 					navigate("/workspace");
 				}
 			})
