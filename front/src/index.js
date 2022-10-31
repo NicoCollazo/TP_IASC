@@ -2,7 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 import { SocketContext, socket } from "./context/socket";
-import Router from "./Routes"
+
+import Router from "./Routes";
 
 ReactDOM.render(
 	<React.StrictMode>
