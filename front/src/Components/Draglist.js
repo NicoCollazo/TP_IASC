@@ -110,7 +110,7 @@ function DragList({ workspaceName }) {
 			(i) => i.id === item.id
 		);
 		elementsCopy[item.board][elementIndex].title = e.target.value;
-		// setElements(elementsCopy);
+		setElements(elementsCopy);
 	}
 
 	function handleChangeItemContent(e, item) {
@@ -119,7 +119,7 @@ function DragList({ workspaceName }) {
 			(i) => i.id === item.id
 		);
 		elementsCopy[item.board][elementIndex].content = e.target.value;
-		// setElements(elementsCopy);
+		setElements(elementsCopy);
 	}
 
 	function handleEdit(item, editing) {
