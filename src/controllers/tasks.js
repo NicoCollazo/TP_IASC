@@ -2,17 +2,13 @@ const logger = require("../utils/logger")(__filename);
 
 /* Schema:
 	[
-		{
+		{	
+			board: Literal(Todo, Doing, Done),
 			workspaceName: string,
 			owner: string,
-            tasks: [
-				{	
-					boardName: Literal(Todo, Doing, Done),
-					id: string,
-					content: string,
-            		editing: boolean
-				}
-			],
+			id: string,
+			content: string,
+			editing: boolean
 		}
 	]
 */
@@ -25,16 +21,26 @@ class TaskManager {
 	// Add a new task to the list
 	add = (task) => {
 		this._tasks.push(task);
-		return "Task Added Successfully";
+		return task;
 	};
 
 	// Get all tasks related to a given workspace
-	get = (workspaceName) => {
+	get = (workspaceName, owner) => {
 		let allTasks = this._tasks.filter(
-			(task) => task.workspaceName === workspaceName
+			(task) => task.workspaceName === workspaceName && task.owner === owner
 		);
-		logger.info(allTasks);
+		logger.info(JSON.stringify(allTasks));
 		return allTasks;
+	};
+
+	getTaskIndex = (taskId) => {
+		return this._tasks.findIndex((t) => t.id === taskId);
+	};
+
+	edit = (workspaceName, owner, newTaskData) => {
+		const idx = this.getTaskIndex(newTaskData.id);
+		this._tasks[idx] = newTaskData;
+		return newTaskData;
 	};
 
 	// Get all the tasks ever created

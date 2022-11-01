@@ -1,12 +1,15 @@
 /* Schema:
 	[
 		{
+			id: string,
 			name: string,
 			owner: string,
 			shared: [string] (allowed usernames)
 		}
 	]
 */
+const { v4: uuidv4 } = require("uuid");
+
 const logger = require("../utils/logger")(__filename);
 
 class WorkspaceManager {
@@ -19,7 +22,12 @@ class WorkspaceManager {
 	};
 
 	add = async (username, workspaceName) => {
-		const workspace = { name: workspaceName, owner: username, shared: [] };
+		const workspace = {
+			id: uuidv4(),
+			name: workspaceName,
+			owner: username,
+			shared: [],
+		};
 		this._workspaces.push(workspace);
 		logger.info("Addition Successfull");
 		return workspace;
@@ -36,6 +44,10 @@ class WorkspaceManager {
 			// Workspaces shared to the user.
 			...this._getSharedWorkspaces(username),
 		].sort();
+	};
+
+	getByName = (username, workspaceName) => {
+		return this.getByUsername(username).find((w) => w.name === workspaceName);
 	};
 
 	getAll = () => {
