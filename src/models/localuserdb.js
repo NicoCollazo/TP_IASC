@@ -53,5 +53,6 @@ class UsersDb {
 }
 
 const usersDb = new UsersDb();
+usersDb.register("Ramiro", "password");
 
 module.exports = usersDb;
