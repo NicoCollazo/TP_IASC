@@ -56,13 +56,8 @@ const Workspaces = () => {
 	});
 
 	const handleSubmit = () => {
-		console.log(newWorkspace);
 		setNewWorkspace("");
-		// setWorkspaceList((currentWorkspaceList) => [
-		// 	...currentWorkspaceList,
-		// 	newWorkspace,
-		// ]);
-		socket.emit("addWorkspace", newWorkspace);
+		if (newWorkspace !== "") socket.emit("addWorkspace", newWorkspace);
 	};
 
 	const handleChange = (event) => {
