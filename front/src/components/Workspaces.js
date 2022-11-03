@@ -14,7 +14,7 @@ import {
 	Chip,
 	TextField,
 	Button,
-	Grid
+	Grid,
 } from "@mui/material";
 
 import { SocketContext } from "../context/socket";
@@ -25,11 +25,11 @@ const Workspaces = () => {
 	const [newWorkspace, setNewWorkspace] = useState("");
 	const navigate = useNavigate();
 	const [workspaceList, setWorkspaceList] = useState([]);
-	
+
 	// Load the list of previously created workspaces once during the first rendering
 	useEffect(() => {
 		// Force Reconnect to validate the auth_token.
-		/*socket.disconnect().connect(socket_url, {
+		socket.disconnect().connect(socket_url, {
 			withCredentials: true,
 			forceNew: true,
 		});
@@ -43,90 +43,92 @@ const Workspaces = () => {
 		socket.emit("allWorkspaces");
 		socket.on("allWorkspaces", (workspaces) => {
 			setWorkspaceList(workspaces);
-		});*/
+		});
 	}, []);
 
 	// Keep listening for New Workspaces that might be created by other users in the organization
 	useEffect(() => {
-		/*const wplistener = (workspace) => {
+		const wplistener = (workspace) => {
 			setWorkspaceList((oldList) => [...oldList, workspace]);
 		};
 		socket.on("newWorkspace", wplistener);
-		return () => socket.off("newWorkspace", wplistener);*/
+		return () => socket.off("newWorkspace", wplistener);
 	});
-	
+
 	const handleSubmit = () => {
-		console.log(newWorkspace)
-		setNewWorkspace("")
-		setWorkspaceList(currentWorkspaceList => [...currentWorkspaceList, newWorkspace]);
-		//socket.emit("addWorkspace", data.workspaceName);
-	}
+		console.log(newWorkspace);
+		setNewWorkspace("");
+		setWorkspaceList((currentWorkspaceList) => [
+			...currentWorkspaceList,
+			newWorkspace,
+		]);
+		socket.emit("addWorkspace", data.workspaceName);
+	};
 
 	const handleChange = (event) => {
 		setNewWorkspace(event.target.value);
-		//socket.emit("addWorkspace", data.workspaceName);
-	}
+		socket.emit("addWorkspace", data.workspaceName);
+	};
 
 	return (
 		<Container maxWidth="lg">
 			<AppBar position="fixed" sx={{ backgroundColor: "#aab6ab" }}>
 				<Toolbar>
 					<Typography variant="h6">ToDo App</Typography>
-				
 				</Toolbar>
 			</AppBar>
-			<Box sx={{margin: 4, paddingTop: 4}}>
-				
-				<Card sx={{marginTop: 4}}>
+			<Box sx={{ margin: 4, paddingTop: 4 }}>
+				<Card sx={{ marginTop: 4 }}>
 					<CardHeader
 						title="Select a workspace"
-						titleTypographyProps={{ align: 'left' }}
+						titleTypographyProps={{ align: "left" }}
 						sx={{
 							backgroundColor: (theme) =>
-							theme.palette.mode === 'light'
-								? theme.palette.grey[200]
-								: theme.palette.grey[700],
+								theme.palette.mode === "light"
+									? theme.palette.grey[200]
+									: theme.palette.grey[700],
 						}}
 					/>
 					<CardContent>
 						<Box
 							sx={{
-								display: 'flex',
-								justifyContent: 'left',
-								alignItems: 'baseline',
+								display: "flex",
+								justifyContent: "left",
+								alignItems: "baseline",
 								mb: 2,
 							}}
 						>
 							<Grid container spacing={0}>
 								{workspaceList.map((w, idx) => (
 									<Grid item>
-										<Button component={Link} to={"/" + w} sx={{mr: 1, mt: 1}} variant="outlined">
-											{w}
+										<Button
+											component={Link}
+											to={"/workspace/" + w.name}
+											sx={{ mr: 1, mt: 1 }}
+											variant="outlined"
+										>
+											{w.name}
 										</Button>
 									</Grid>
-								))}  
+								))}
 							</Grid>
-							
-							
 						</Box>
 					</CardContent>
-              	</Card>
+				</Card>
 
-				  <Card sx={{marginTop: 4}}>
+				<Card sx={{ marginTop: 4 }}>
 					<CardHeader
 						title="Create a workspace"
-						titleTypographyProps={{ align: 'left' }}
+						titleTypographyProps={{ align: "left" }}
 						sx={{
 							backgroundColor: (theme) =>
-							theme.palette.mode === 'light'
-								? theme.palette.grey[200]
-								: theme.palette.grey[700],
+								theme.palette.mode === "light"
+									? theme.palette.grey[200]
+									: theme.palette.grey[700],
 						}}
 					/>
 					<CardContent>
-						<Box
-							sx={{ mt: 1 }}
-						>
+						<Box sx={{ mt: 1 }}>
 							<TextField
 								margin="normal"
 								required
@@ -148,13 +150,9 @@ const Workspaces = () => {
 							</Button>
 						</Box>
 					</CardContent>
-              	</Card>
-
-				
+				</Card>
 			</Box>
-			
 		</Container>
-			
 	);
 };
 
