@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-import Auth from "./Components/Auth";
-import Workspace from "./Components/Workspace";
-import Workspaces from "./Components/Workspaces";
+import Auth from "./components/Auth";
+import Workspace from "./components/Workspace";
+import Workspaces from "./components/Workspaces";
 
 const Router = () => {
 	return (
