@@ -18,6 +18,8 @@
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 
+const logger = require("../utils/logger")(__filename);
+
 class UsersDb {
 	constructor(users) {
 		this._users = users || [];
@@ -42,6 +44,7 @@ class UsersDb {
 		const createdUser = { id: uuidv4(), username, passwordHash: pHash };
 		this._users.push(createdUser);
 
+		logger.info(`Succesfully created user ${createdUser.username}`);
 		return createdUser;
 	};
 

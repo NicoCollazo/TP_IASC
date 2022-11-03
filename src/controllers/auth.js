@@ -7,18 +7,18 @@ const authenticate = async (req, res) => {
 	// Validate the username exists.
 	const user = UserDb.findOne(req.body.username);
 	if (!user) {
-		logger.error("Username or password are incorrect");
+		logger.error("Username doesn't exist in the DB");
 		return res.status(400).json({
-			error: "Username or password are incorrect",
+			error: "Username doesn't exist in the DB",
 		});
 	}
 
 	// Validate password with bcrypt.
-	const validPassword = await bcrypt.compare(
-		req.body.password,
-		user.passwordHash
+	const validPassword = await UserDb.validate(
+		req.body.username,
+		req.body.password
 	);
-	if (validPassword) {
+	if (!validPassword) {
 		logger.error("Username or password are incorrect");
 		return res.status(400).json({
 			error: "Username or password are incorrect",
