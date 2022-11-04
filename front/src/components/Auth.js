@@ -1,5 +1,5 @@
 import axios from "axios";
-import * as React from "react";
+import { useState } from "react";
 import {
 	Avatar,
 	Button,
@@ -10,17 +10,18 @@ import {
 	Container,
 	createTheme,
 	ThemeProvider,
-	CardHeader,
-	IconButton,
+	Snackbar,
+	Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { LockOutlined as LockOutlinedIcon } from "@mui/icons-material";
 
 const AUTH_URL = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_API_PORT}/api/auth`;
 
 const theme = createTheme();
 
 export default function Auth() {
+	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
 	const navigate = useNavigate();
 
 	const handleSubmit = (event) => {
@@ -39,10 +40,15 @@ export default function Auth() {
 					navigate("/workspace");
 				}
 			})
-			.catch(function (error) {
-				console.log(error);
-				// Display error message on screen.
+			.catch((err) => {
+				console.log(err);
+				const errMsg = err.response.data.error;
+				setErrorNotif({ open: true, message: errMsg });
 			});
+	};
+
+	const onCloseNotif = () => {
+		setErrorNotif({ open: false, message: "" });
 	};
 
 	return (
@@ -54,6 +60,16 @@ export default function Auth() {
 					</Typography>
 				</Box>
 				<CssBaseline />
+				<Snackbar
+					open={errorNotif.open}
+					onClose={onCloseNotif}
+					autoHideDuration={3000}
+					anchorOrigin={{ vertical: "top", horizontal: "center" }}
+				>
+					<Alert onClose={onCloseNotif} severity="error">
+						{errorNotif.message}
+					</Alert>
+				</Snackbar>
 				<Box
 					sx={{
 						marginTop: 8,

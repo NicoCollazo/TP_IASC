@@ -57,6 +57,7 @@ const Workspaces = () => {
 
 	const handleSubmit = () => {
 		setNewWorkspace("");
+		// Display error message maybe?
 		if (newWorkspace !== "") socket.emit("addWorkspace", newWorkspace);
 	};
 
