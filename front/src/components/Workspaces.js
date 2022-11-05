@@ -95,7 +95,7 @@ const Workspaces = () => {
 						>
 							<Grid container spacing={0}>
 								{workspaceList.map((w, idx) => (
-									<Grid item>
+									<Grid key={`${w.name}__${idx}`} item>
 										<Button
 											component={Link}
 											to={"/workspace/" + w.name}

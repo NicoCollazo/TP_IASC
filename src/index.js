@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const express = require("express");
 const { Server } = require("socket.io");
+const ioClient = require("socket.io-client");
 
 const router = require("./routers");
 const { initApp } = require("./server");
@@ -11,20 +12,26 @@ const logger = require("./utils/logger")(__filename);
 dotenv.config();
 
 const app = express();
-const io_port = process.env.IO_PORT || "8081";
-const api_port = process.env.PORT || "8080";
+const name = process.env.NAME || "SERVER_1";
+const apiPort = process.env.PORT || "8080";
+const ioPort = process.env.IO_PORT || "8081";
+const frontPort = process.env.FRONT_PORT || "3000";
+const monitoringPort = process.env.MONITORING_PORT || "8082";
+const baseURL = "http://localhost";
+const frontURL = `${baseURL}:${frontPort}`;
+const monitoringServiceURL = `${baseURL}:${monitoringPort}`;
 
+/* ------ APP INITIALIZATION ------ */
 initApp(app);
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: frontURL, credentials: true }));
 app.use("/api", router);
-app.listen(api_port);
+app.listen(apiPort);
 
 const server = http.createServer(app);
-
 const io = new Server(server, {
-	cors: { origin: "http://localhost:3000", credentials: true },
+	cors: { origin: frontURL, credentials: true },
 });
-server.listen(io_port);
+server.listen(ioPort);
 
 const { WorkspaceManager, TaskManager } = require("./controllers");
 const test_workspaces = [
@@ -48,20 +55,37 @@ const test_tasks = [
 		workspaceName: "test2",
 		owner: "Ramiro",
 		id: "1231231231",
-		content: "Hola, soy una tarea",
+		title: "Hola, soy una tarea",
+		content: "",
 		editing: false,
 	},
 ];
 
 const workspaceManagerInstance = new WorkspaceManager(test_workspaces);
 const tasksManagerInstance = new TaskManager(test_tasks);
+/* -------------------------------- */
 
-setInterval(
-	() => logger.info("Tasks: " + JSON.stringify(tasksManagerInstance._tasks)),
-	3000
-);
+/* ------ HEALTHCHECK ------ */
+const socket = ioClient.connect(monitoringServiceURL, {
+	reconnection: true,
+});
+socket.on("connect", () => {
+	logger.info("Connected to monitoring service.");
+});
 
-// Initializing the socket io connection
+socket.on("getStatus", () => {
+	const tasksStatus = "Tasks: " + JSON.stringify(tasksManagerInstance._tasks);
+	const workspacesStatus =
+		"Workspaces: " + JSON.stringify(workspaceManagerInstance._workspaces);
+	socket.emit("status", {
+		name,
+		workspaces: workspacesStatus,
+		tasks: tasksStatus,
+	});
+});
+/* ------------------------- */
+
+/* ------ SOCKET SERVER ------ */
 io.use(verifyTokenSocket);
 io.on("connection", (socket) => {
 	socket.on("allWorkspaces", () => {
@@ -139,5 +163,6 @@ io.on("connection", (socket) => {
 		logger.info(`User ${socket.user.username} disconnected`);
 	});
 });
+/* --------------------------- */
 
 module.exports = app;
