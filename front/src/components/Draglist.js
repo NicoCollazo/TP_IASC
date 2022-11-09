@@ -6,20 +6,16 @@ import {
 	Box,
 	Chip,
 } from "@mui/material";
+import { v4 as uuidv4 } from "uuid";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { useState, useEffect, useContext } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
-import {
-	FaList,
-	IoMdConstruct,
-	MdOutlineDoneOutline,
-	RiContactsBookLine,
-} from "react-icons/all";
+import { useState, useEffect, useContext } from "react";
 import { TextField, SwipeableDrawer, Divider } from "@mui/material";
+import { FaList, IoMdConstruct, MdOutlineDoneOutline } from "react-icons/all";
 
-import DraggableElement from "./DraggableElement";
 import { SocketContext } from "../context/socket";
+import DraggableElement from "./DraggableElement";
 
 const DragDropContextContainer = styled.div`
 	padding: 20px;
@@ -35,7 +31,7 @@ const ListGrid = styled.div`
 // fake data generator
 const getItems = (count, list) =>
 	Array.from({ length: count }, (v, k) => k).map((k) => {
-		const randomId = Math.floor(Math.random() * 1000);
+		const randomId = uuidv4();
 		return {
 			id: `item-${randomId}`,
 			list,
@@ -88,8 +84,30 @@ function DragList({ workspaceName }) {
 	});
 	const socket = useContext(SocketContext);
 
+	const handleSocketEdit = (editedTask) => {
+		setElements((prevTasks) => {
+			const newTasks = Object.assign({}, prevTasks);
+			const editedTaskIdx = newTasks[editedTask.board].findIndex(
+				(t) => t.id === editedTask.id
+			);
+			newTasks[editedTask.board][editedTaskIdx] = editedTask;
+			return newTasks;
+		});
+	};
+
+	const handleSocketAdd = (newTask) => {
+		setElements((prevTasks) => {
+			if (isTheKeyDuplicated(prevTasks, newTask)) {
+				return prevTasks;
+			}
+			const newTasks = Object.assign({}, prevTasks);
+			newTasks[newTask.board].push(newTask);
+			return newTasks;
+		});
+	};
+
 	function handleAdd(list) {
-		const randomId = Math.floor(Math.random() * 1000);
+		const randomId = uuidv4();
 		const date = new Date().toLocaleString();
 		const newTask = {
 			id: `item-${randomId}`,
@@ -100,7 +118,13 @@ function DragList({ workspaceName }) {
 			editing: true,
 			workspaceName,
 		};
-		socket.emit("addTask", newTask);
+		socket.emit("addTask", newTask, (t) => {
+			if (t.message === undefined) {
+				handleSocketAdd(t);
+			} else {
+				// TODO: Display error message.
+			}
+		});
 	}
 
 	function handleChangeItemTitle(e, item) {
@@ -109,7 +133,13 @@ function DragList({ workspaceName }) {
 			(i) => i.id === item.id
 		);
 		elementsCopy[item.board][elementIndex].title = e.target.value;
-		setElements(elementsCopy);
+		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) => {
+			if (t.message === undefined) {
+				handleSocketEdit(t);
+			} else {
+				// TODO: Display error message.
+			}
+		});
 	}
 
 	function handleChangeItemContent(e, item) {
@@ -128,7 +158,13 @@ function DragList({ workspaceName }) {
 		);
 		if (elementsCopy[item.board][elementIndex].title !== "") {
 			elementsCopy[item.board][elementIndex].editing = editing;
-			socket.emit("editTask", elementsCopy[item.board][elementIndex]);
+			socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) => {
+				if (t.message === undefined) {
+					handleSocketAdd(t);
+				} else {
+					// TODO: Display error message.
+				}
+			});
 		} else {
 			// TODO: Handle Delete.
 			// handleDelete(item);
@@ -221,35 +257,11 @@ function DragList({ workspaceName }) {
 	};
 
 	useEffect(() => {
-		const newTasklistener = (task) => {
-			console.log(`Received a new task ${JSON.stringify(task)}`);
-			setElements((prevTasks) => {
-				if (isTheKeyDuplicated(prevTasks, task)) {
-					return prevTasks;
-				}
-				const newTasks = Object.assign({}, prevTasks);
-				newTasks[task.board].push(task);
-				return newTasks;
-			});
-		};
-
-		const editTaskListener = (task) => {
-			console.log(`Received edited task ${JSON.stringify(task)}`);
-			setElements((prevTasks) => {
-				const newTasks = Object.assign({}, prevTasks);
-				const editedTaskIdx = newTasks[task.board].findIndex(
-					(t) => t.id === task.id
-				);
-				newTasks[task.board][editedTaskIdx] = task;
-				return newTasks;
-			});
-		};
-
-		socket.on("newTask", newTasklistener);
-		socket.on("taskEdited", editTaskListener);
+		socket.on("newTask", handleSocketAdd);
+		socket.on("taskEdited", handleSocketEdit);
 		return () => {
-			socket.off("newTask", newTasklistener);
-			socket.off("taskEdited", editTaskListener);
+			socket.off("newTask", handleSocketAdd);
+			socket.off("taskEdited", handleSocketEdit);
 		};
 	});
 

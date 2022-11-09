@@ -1,5 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
 import { Link } from "react-router-dom";
-import { Formik, Field, Form } from "formik";
 import { useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import {
@@ -11,7 +11,6 @@ import {
 	AppBar,
 	Toolbar,
 	Box,
-	Chip,
 	TextField,
 	Button,
 	Grid,
@@ -48,23 +47,47 @@ const Workspaces = () => {
 
 	// Keep listening for New Workspaces that might be created by other users in the organization
 	useEffect(() => {
-		const wplistener = (workspace) => {
+		const newWorkspacepListener = (workspace) => {
 			setWorkspaceList((oldList) => [...oldList, workspace]);
 		};
-		socket.on("newWorkspace", wplistener);
-		return () => socket.off("newWorkspace", wplistener);
+		const deleteWorkspaceListener = (workspace) => {
+			setWorkspaceList((oldList) =>
+				oldList.filter((w) => w.id !== workspace.id)
+			);
+		};
+
+		socket.on("deleteWorkspace", deleteWorkspaceListener);
+		socket.on("newWorkspace", newWorkspacepListener);
+		return () => {
+			socket.off("newWorkspace", newWorkspacepListener);
+			socket.off("deleteWorkspace", deleteWorkspaceListener);
+		};
 	});
 
 	const handleSubmit = () => {
 		setNewWorkspace("");
-		// Display error message maybe?
-		if (newWorkspace !== "") socket.emit("addWorkspace", newWorkspace);
+		if (newWorkspace === "") {
+			return;
+		}
+		socket.emit(
+			"addWorkspace",
+			{ name: newWorkspace, id: uuidv4() },
+			(nWorkspace) => {
+				if (nWorkspace.message === undefined) {
+					setWorkspaceList((oldList) => [...oldList, nWorkspace]);
+				} else {
+					// TODO: Display error message if no ACK is returned
+					// or if the ACK is not a workspace.
+				}
+			}
+		);
 	};
 
 	const handleChange = (event) => {
 		setNewWorkspace(event.target.value);
 	};
 
+	// TODO: Add buttons to delete a workspace (maybe how we handle task deletion?)
 	return (
 		<Container maxWidth="lg">
 			<AppBar position="fixed" sx={{ backgroundColor: "#aab6ab" }}>

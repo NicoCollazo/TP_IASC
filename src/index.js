@@ -12,11 +12,14 @@ const logger = require("./utils/logger")(__filename);
 dotenv.config();
 
 const app = express();
+const DEBUG = process.env.DEBUG || false;
 const name = process.env.NAME || "SERVER_1";
 const apiPort = process.env.PORT || "8080";
 const ioPort = process.env.IO_PORT || "8081";
+const stateManagerPort = process.env.STATEMANAGER_PORT || "8090";
 const frontPort = process.env.FRONT_PORT || "3000";
 const monitoringPort = process.env.MONITORING_PORT || "8082";
+const performHealthCheck = process.env.HEALTHCHECK || false;
 const baseURL = "http://localhost";
 const frontURL = `${baseURL}:${frontPort}`;
 const monitoringServiceURL = `${baseURL}:${monitoringPort}`;
@@ -66,23 +69,25 @@ const tasksManagerInstance = new TaskManager(test_tasks);
 /* -------------------------------- */
 
 /* ------ HEALTHCHECK ------ */
-const socket = ioClient.connect(monitoringServiceURL, {
-	reconnection: true,
-});
-socket.on("connect", () => {
-	logger.info("Connected to monitoring service.");
-});
-
-socket.on("getStatus", () => {
-	const tasksStatus = "Tasks: " + JSON.stringify(tasksManagerInstance._tasks);
-	const workspacesStatus =
-		"Workspaces: " + JSON.stringify(workspaceManagerInstance._workspaces);
-	socket.emit("status", {
-		name,
-		workspaces: workspacesStatus,
-		tasks: tasksStatus,
+if (performHealthCheck) {
+	const socket = ioClient.connect(monitoringServiceURL, {
+		reconnection: true,
 	});
-});
+	socket.on("connect", () => {
+		logger.info("Connected to monitoring service.");
+	});
+
+	socket.on("getStatus", () => {
+		const tasksStatus = "Tasks: " + JSON.stringify(tasksManagerInstance._tasks);
+		const workspacesStatus =
+			"Workspaces: " + JSON.stringify(workspaceManagerInstance._workspaces);
+		socket.emit("status", {
+			name,
+			workspaces: workspacesStatus,
+			tasks: tasksStatus,
+		});
+	});
+}
 /* ------------------------- */
 
 /* ------ SOCKET SERVER ------ */
@@ -108,7 +113,7 @@ io.on("connection", (socket) => {
 		// Create a new room with the workspace
 		socket.join(workspace.id);
 
-		// All subsequest emmision happen in the room.
+		// All subsequest emmisions happen in the room.
 		const updated_tasks = tasksManagerInstance.get(
 			workspace.name,
 			socket.user.username
@@ -116,7 +121,26 @@ io.on("connection", (socket) => {
 		io.in(workspace.id).emit("allTasks", updated_tasks);
 	});
 
-	socket.on("addTask", (task) => {
+	socket.on("addWorkspace", (workspace, ack) => {
+		logger.info(`Adding Workspace ${JSON.stringify(workspace)}`);
+		workspaceManagerInstance.add(socket.user.username, workspace).then((w) => {
+			socket.broadcast.emit("newWorkspace", w);
+			ack(w);
+		});
+	});
+
+	socket.on("deleteWorkspace", (workspace, ack) => {
+		workspaceManagerInstance.delete(workspace).then((w) => {
+			socket.broadcast.emit("deleteWorkspace", w);
+			ack(w);
+			socket.leave(workspace.id);
+		});
+		// TODO: Delete all tasks related to that workspace here
+		// and emit an event to let the user know that the workspace
+		// doesn't exist anymore.
+	});
+
+	socket.on("addTask", (task, ack) => {
 		const workspace = workspaceManagerInstance.getByName(
 			socket.user.username,
 			task.workspaceName
@@ -128,10 +152,13 @@ io.on("connection", (socket) => {
 		logger.info(
 			`Adding task ${JSON.stringify(updatedTask)} to workspace ${workspace.id}`
 		);
-		io.in(workspace.id).emit("newTask", updatedTask);
+		// Broadcast the task to the other nodes.
+		io.to(workspace.id).emit("newTask", updatedTask);
+		// ACK to the specific node.
+		ack(updatedTask);
 	});
 
-	socket.on("editTask", (task) => {
+	socket.on("editTask", (task, ack) => {
 		const workspace = workspaceManagerInstance.getByName(
 			socket.user.username,
 			task.workspaceName
@@ -142,26 +169,25 @@ io.on("connection", (socket) => {
 			task
 		);
 		logger.info(`Editing task ${updatedTask.id} on workspace ${workspace.id}`);
-		io.in(workspace.id).emit("taskEdited", updatedTask);
+		// Broadcast to all other nodes.
+		socket.to(workspace.id).emit("taskEdited", updatedTask);
+		// Responde to sender node.
+		ack(updatedTask);
 	});
 
-	//TODO: Handle task and workspace deletion.
+	//TODO: Handle task deletion.
 	// socket.on("deleteTask")
-
-	//TODO: Handle task and workspace deletion.
-	// socket.on("deleteWorkspace")
-
-	// Endpoint for adding new Workspace
-	socket.on("addWorkspace", (workspace) => {
-		logger.info(`Adding Workspace ${JSON.stringify(workspace)}`);
-		workspaceManagerInstance
-			.add(socket.user.username, workspace)
-			.then((w) => io.emit("newWorkspace", w));
-	});
 
 	socket.on("disconnect", () => {
 		logger.info(`User ${socket.user.username} disconnected`);
 	});
+
+	// DEBUG ROOMS.
+	if (DEBUG) {
+		io.of("/").adapter.on("join-room", (room, id) => {
+			logger.info(`socket ${id} has joined room ${room}`);
+		});
+	}
 });
 /* --------------------------- */
 
