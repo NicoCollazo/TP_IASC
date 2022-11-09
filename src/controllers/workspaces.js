@@ -8,8 +8,6 @@
 		}
 	]
 */
-const { v4: uuidv4 } = require("uuid");
-
 const logger = require("../utils/logger")(__filename);
 
 class WorkspaceManager {
@@ -21,10 +19,10 @@ class WorkspaceManager {
 		this._workspaces = workspaceList;
 	};
 
-	add = async (username, workspaceName) => {
+	add = async (username, { name, id }) => {
 		const workspace = {
-			id: uuidv4(),
-			name: workspaceName,
+			id,
+			name,
 			owner: username,
 			shared: [],
 		};
@@ -48,6 +46,12 @@ class WorkspaceManager {
 
 	getByName = (username, workspaceName) => {
 		return this.getByUsername(username).find((w) => w.name === workspaceName);
+	};
+
+	delete = async (workspace) => {
+		this._workspaces = this._workspaces.filter((w) => w.id !== workspace.id);
+		logger.info(`Successfully deleted workspace: ${workspace.name}`);
+		return workspace;
 	};
 
 	getAll = () => {
