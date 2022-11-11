@@ -5,15 +5,17 @@ import {
 	Toolbar,
 	Box,
 	Chip,
+	TextField,
+	SwipeableDrawer,
+	Divider,
+	Button
 } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useState, useEffect, useContext } from "react";
-import { TextField, SwipeableDrawer, Divider } from "@mui/material";
-import { FaList, IoMdConstruct, MdOutlineDoneOutline } from "react-icons/all";
-
+import { FaList, IoMdConstruct, MdOutlineDoneOutline, IoMdArrowRoundBack } from "react-icons/all";
 import { SocketContext } from "../context/socket";
 import DraggableElement from "./DraggableElement";
 
@@ -330,12 +332,34 @@ function DragList({ workspaceName }) {
 
 	return (
 		<Container maxWidth="lg">
-			<AppBar position="fixed" sx={{ backgroundColor: "#aab6ab" }}>
-				<Toolbar>
-					<Typography variant="h6">{workspaceName}</Typography>
-					<Typography>
-						<Link to="/workspace">Exit Workspace</Link>
-					</Typography>
+			<AppBar position="fixed" sx={{ backgroundColor: "#478ea1" }}>
+				<Toolbar sx={{ justifyContent: "space-between" }}>
+					<Box firstChild={true} float="left">
+						<Button 
+							component={Link}
+							to="/workspace"
+							variant="contained"
+							startIcon={<IoMdArrowRoundBack />}
+							sx={{
+								backgroundColor: "#5bb9c1",
+								"&:hover": {
+									backgroundColor: "#2b9fa9",
+								},
+							}}
+						>
+							Back
+						</Button>
+                	</Box>
+
+					<Box style={{ 
+						float       : 'none', 
+						width       : '200px',
+						marginLeft  : 'auto',
+						marginRight : 'auto'
+					}}>
+						<Typography variant="h4">{workspaceName.toUpperCase()}</Typography>
+					</Box>
+
 				</Toolbar>
 			</AppBar>
 			<Box sx={{ marginTop: 10 }}>

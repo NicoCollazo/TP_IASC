@@ -90,9 +90,9 @@ const Workspaces = () => {
 	// TODO: Add buttons to delete a workspace (maybe how we handle task deletion?)
 	return (
 		<Container maxWidth="lg">
-			<AppBar position="fixed" sx={{ backgroundColor: "#aab6ab" }}>
+			<AppBar position="fixed" sx={{ backgroundColor: "#478ea1" }}>
 				<Toolbar>
-					<Typography variant="h6">ToDo App</Typography>
+					<Typography variant="h6">TODO APP</Typography>
 				</Toolbar>
 			</AppBar>
 			<Box sx={{ margin: 4, paddingTop: 4 }}>
