@@ -26,7 +26,7 @@ export default function Auth() {
 
 	const login = (event) => {
 		if (event.key === "Enter") {
-			this.handleSubmit(event);
+			handleSubmit(event);
 		}
 	};
 
