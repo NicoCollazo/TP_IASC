@@ -1,12 +1,12 @@
 # Back
+echo "Building Backend Service..."
 docker build --rm -t tp_iasc/back .
 
 # Front
-cd ./front
-
+cd ./front 
+echo "Building FrontEnd Service..."
 docker build --rm -t tp_iasc/front .
+cd .. 
 
-# Restore shell to root.
-cd ..
-
+# Compose
 docker compose up
