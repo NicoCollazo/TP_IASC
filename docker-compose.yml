@@ -1,7 +1,7 @@
 services:
-  app:
+  back:
     build: .
-    image: ramiro/tp_iasc
+    image: tp_iasc/back
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -9,3 +9,9 @@ services:
       - ./environments/.env.app.deployed
     volumes:
       - "./logs/container_logs:/usr/src/app/logs"
+  front:
+    image: tp_iasc/front
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./environments/.env.front.deployed

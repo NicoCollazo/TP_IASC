@@ -153,7 +153,7 @@ io.on("connection", (socket) => {
 			`Adding task ${JSON.stringify(updatedTask)} to workspace ${workspace.id}`
 		);
 		// Broadcast the task to the other nodes.
-		io.to(workspace.id).emit("newTask", updatedTask);
+		socket.to(workspace.id).emit("newTask", updatedTask);
 		// ACK to the specific node.
 		ack(updatedTask);
 	});
