@@ -57,7 +57,7 @@ const test_tasks = [
 		board: "Doing",
 		workspaceName: "test2",
 		owner: "Ramiro",
-		id: "1231231231",
+		id: "e0244293-468c-469a-b552-c54cfc851b3d",
 		title: "Hola, soy una tarea",
 		content: "",
 		editing: false,
@@ -131,13 +131,15 @@ io.on("connection", (socket) => {
 
 	socket.on("deleteWorkspace", (workspace, ack) => {
 		workspaceManagerInstance.delete(workspace).then((w) => {
+			const workspaceTasks = tasksManagerInstance.get(
+				workspace.name,
+				socket.user.username
+			);
+			tasksManagerInstance.delete(workspaceTasks.map((t) => t.id));
 			socket.broadcast.emit("deleteWorkspace", w);
 			ack(w);
 			socket.leave(workspace.id);
 		});
-		// TODO: Delete all tasks related to that workspace here
-		// and emit an event to let the user know that the workspace
-		// doesn't exist anymore.
 	});
 
 	socket.on("addTask", (task, ack) => {
@@ -163,11 +165,7 @@ io.on("connection", (socket) => {
 			socket.user.username,
 			task.workspaceName
 		);
-		const updatedTask = tasksManagerInstance.edit(
-			task.workspacename,
-			socket.user.username,
-			task
-		);
+		const updatedTask = tasksManagerInstance.edit(task);
 		logger.info(`Editing task ${updatedTask.id} on workspace ${workspace.id}`);
 		// Broadcast to all other nodes.
 		socket.to(workspace.id).emit("taskEdited", updatedTask);
@@ -175,8 +173,23 @@ io.on("connection", (socket) => {
 		ack(updatedTask);
 	});
 
-	//TODO: Handle task deletion.
-	// socket.on("deleteTask")
+	socket.on("deleteTask", (task, ack) => {
+		const workspace = workspaceManagerInstance.getByName(
+			socket.user.username,
+			task.workspaceName
+		);
+		try {
+			tasksManagerInstance.delete(task.id);
+			logger.info(`Deleted task ${task.id} on workspace ${workspace.id}`);
+			socket.to(workspace.id).emit("taskDeleted", task);
+			ack(task);
+		} catch (err) {
+			logger.error({
+				message: `An error has occurred trying to delete task ${task.id}`,
+				trace: err.message,
+			});
+		}
+	});
 
 	socket.on("disconnect", () => {
 		logger.info(`User ${socket.user.username} disconnected`);

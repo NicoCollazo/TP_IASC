@@ -8,14 +8,19 @@ import {
 	TextField,
 	SwipeableDrawer,
 	Divider,
-	Button
+	Button,
 } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useState, useEffect, useContext } from "react";
-import { FaList, IoMdConstruct, MdOutlineDoneOutline, IoMdArrowRoundBack } from "react-icons/all";
+import {
+	FaList,
+	IoMdConstruct,
+	MdOutlineDoneOutline,
+	IoMdArrowRoundBack,
+} from "react-icons/all";
 import { SocketContext } from "../context/socket";
 import DraggableElement from "./DraggableElement";
 
@@ -85,6 +90,14 @@ function DragList({ workspaceName }) {
 		content: "",
 	});
 	const socket = useContext(SocketContext);
+	const navigate = useNavigate();
+
+	const handleAckMessage = (element, successCallback, errCallback) => {
+		if (element.message !== undefined) {
+			errCallback(e);
+		}
+		successCallback(element);
+	};
 
 	const handleSocketEdit = (editedTask) => {
 		setElements((prevTasks) => {
@@ -106,6 +119,25 @@ function DragList({ workspaceName }) {
 			newTasks[newTask.board].push(newTask);
 			return newTasks;
 		});
+	};
+
+	const handleSocketDelete = (task) => {
+		setElements((prevState) => {
+			const newState = { ...prevState };
+
+			newState[task.board] = prevState[task.board].filter(
+				(t) => t.id !== task.id
+			);
+
+			return newState;
+		});
+	};
+
+	const checkIfworkspaceIsDeleted = (w) => {
+		if (w.name === workspaceName) {
+			// TODO: Let the user know this workspace was deleted.
+			navigate("/workspace");
+		}
 	};
 
 	function handleAdd(list) {
@@ -135,13 +167,9 @@ function DragList({ workspaceName }) {
 			(i) => i.id === item.id
 		);
 		elementsCopy[item.board][elementIndex].title = e.target.value;
-		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) => {
-			if (t.message === undefined) {
-				handleSocketEdit(t);
-			} else {
-				// TODO: Display error message.
-			}
-		});
+		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
+			handleAckMessage(t, handleSocketEdit, null)
+		);
 	}
 
 	function handleChangeItemContent(e, item) {
@@ -153,6 +181,14 @@ function DragList({ workspaceName }) {
 		setElements(elementsCopy);
 	}
 
+	function handleDelete(item) {
+		// TODO: Hacer Error callback para el socket delete.
+		// Con su respectivo Display error message.
+		socket.emit("deleteTask", item, (t) =>
+			handleAckMessage(t, handleSocketDelete, null)
+		);
+	}
+
 	function handleEdit(item, editing) {
 		const elementsCopy = { ...elements };
 		let elementIndex = elementsCopy[item.board].findIndex(
@@ -160,26 +196,14 @@ function DragList({ workspaceName }) {
 		);
 		if (elementsCopy[item.board][elementIndex].title !== "") {
 			elementsCopy[item.board][elementIndex].editing = editing;
-			socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) => {
-				if (t.message === undefined) {
-					handleSocketAdd(t);
-				} else {
-					// TODO: Display error message.
-				}
-			});
+			// TODO: Hacer Error callback para el socket delete.
+			// Con su respectivo Display error message.
+			socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
+				handleAckMessage(t, handleSocketAdd, null)
+			);
 		} else {
-			// TODO: Handle Delete.
-			// handleDelete(item);
+			handleDelete(elementsCopy[item.board][elementIndex]);
 		}
-	}
-
-	function handleDelete(item) {
-		const elementsCopy = { ...elements };
-		let elementIndex = elementsCopy[item.board].findIndex(
-			(i) => i.id === item.id
-		);
-		elementsCopy[item.board].splice(elementIndex, 1);
-		setElements(elementsCopy);
 	}
 
 	const onDragEnd = (result) => {
@@ -261,9 +285,13 @@ function DragList({ workspaceName }) {
 	useEffect(() => {
 		socket.on("newTask", handleSocketAdd);
 		socket.on("taskEdited", handleSocketEdit);
+		socket.on("taskDeleted", handleSocketDelete);
+		socket.on("deleteWorkspace", checkIfworkspaceIsDeleted);
 		return () => {
 			socket.off("newTask", handleSocketAdd);
 			socket.off("taskEdited", handleSocketEdit);
+			socket.off("taskDeleted", handleSocketDelete);
+			socket.off("deleteWorkspace", checkIfworkspaceIsDeleted);
 		};
 	});
 
@@ -335,7 +363,7 @@ function DragList({ workspaceName }) {
 			<AppBar position="fixed" sx={{ backgroundColor: "#478ea1" }}>
 				<Toolbar sx={{ justifyContent: "space-between" }}>
 					<Box firstChild={true} float="left">
-						<Button 
+						<Button
 							component={Link}
 							to="/workspace"
 							variant="contained"
@@ -349,17 +377,18 @@ function DragList({ workspaceName }) {
 						>
 							Back
 						</Button>
-                	</Box>
-
-					<Box style={{ 
-						float       : 'none', 
-						width       : '200px',
-						marginLeft  : 'auto',
-						marginRight : 'auto'
-					}}>
-						<Typography variant="h4">{workspaceName.toUpperCase()}</Typography>
 					</Box>
 
+					<Box
+						style={{
+							float: "none",
+							width: "200px",
+							marginLeft: "auto",
+							marginRight: "auto",
+						}}
+					>
+						<Typography variant="h4">{workspaceName.toUpperCase()}</Typography>
+					</Box>
 				</Toolbar>
 			</AppBar>
 			<Box sx={{ marginTop: 10 }}>
