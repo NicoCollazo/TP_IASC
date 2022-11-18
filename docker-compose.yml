@@ -1,6 +1,8 @@
 services:
   back:
-    build: .
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
     image: tp_iasc/back
     ports:
       - "8080:8080"
@@ -10,6 +12,9 @@ services:
     volumes:
       - "./logs/container_logs:/usr/src/app/logs"
   front:
+    build: 
+      context: ./front
+      dockerfile: ./Dockerfile
     image: tp_iasc/front
     ports:
       - "3000:3000"
