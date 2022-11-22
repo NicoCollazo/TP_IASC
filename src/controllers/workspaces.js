@@ -1,62 +1,65 @@
-/* Schema:
-	[
-		{
-			id: string,
-			name: string,
-			owner: string,
-			shared: [string] (allowed usernames)
-		}
-	]
-*/
 const logger = require("../utils/logger")(__filename);
+const { WorkspaceManager, TaskManager } = require("../models");
 
-class WorkspaceManager {
-	constructor(workspaces) {
-		this._workspaces = workspaces || [];
-	}
-
-	set = (workspaceList) => {
-		this._workspaces = workspaceList;
+class WorkspacesController {
+	allWorkspaces = (socket, io) => {
+		logger.info(`User ${socket.user.username} connected`);
+		const user_workspaces = WorkspaceManager.getByUsername(
+			socket.user.username
+		);
+		io.emit("allWorkspaces", user_workspaces);
 	};
 
-	add = async (username, { name, id }) => {
-		const workspace = {
-			id,
-			name,
-			owner: username,
-			shared: [],
-		};
-		this._workspaces.push(workspace);
-		logger.info("Addition Successfull");
-		return workspace;
+	openWorkspace = (socket, io, workspaceName) => {
+		const workspace = WorkspaceManager.getByName(
+			socket.user.username,
+			workspaceName
+		);
+		logger.info(
+			`${socket.user.username} is joining workspace ${workspace.name}`
+		);
+
+		// Create a new room with the workspace
+		socket.join(workspace.id);
+
+		// All subsequest emmisions happen in the room.
+		const updated_tasks = TaskManager.get(workspace.name, socket.user.username);
+		io.in(workspace.id).emit("allTasks", updated_tasks);
 	};
 
-	_getSharedWorkspaces = (username) => {
-		return this._workspaces.filter((w) => w.shared.includes(username));
+	addWorkspace = (socket, stateManagerSocket, workspace, ack) => {
+		logger.info(
+			`User ${
+				socket.user.username
+			} is attempting to create a Workspace named: ${JSON.stringify(workspace)}`
+		);
+		stateManagerSocket.emit(
+			"attemptToAddWorkspace",
+			{
+				workspace,
+				username: socket.user.username,
+			},
+			(workspace) => {
+				WorkspaceManager.add(socket.user.username, workspace).then((w) => {
+					socket.broadcast.emit("newWorkspace", w);
+					ack(w);
+				});
+			}
+		);
 	};
 
-	getByUsername = (username) => {
-		return [
-			// Workspaces the user owns.
-			...this._workspaces.filter((w) => username === w.owner),
-			// Workspaces shared to the user.
-			...this._getSharedWorkspaces(username),
-		].sort();
-	};
-
-	getByName = (username, workspaceName) => {
-		return this.getByUsername(username).find((w) => w.name === workspaceName);
-	};
-
-	delete = async (workspace) => {
-		this._workspaces = this._workspaces.filter((w) => w.id !== workspace.id);
-		logger.info(`Successfully deleted workspace: ${workspace.name}`);
-		return workspace;
-	};
-
-	getAll = () => {
-		return this._workspaces;
+	deleteWorkspace = (socket, workspace, ack) => {
+		WorkspaceManager.delete(workspace).then((w) => {
+			const workspaceTasks = TaskManager.get(
+				workspace.name,
+				socket.user.username
+			);
+			TaskManager.delete(workspaceTasks.map((t) => t.id));
+			socket.broadcast.emit("deleteWorkspace", w);
+			ack(w);
+			socket.leave(workspace.id);
+		});
 	};
 }
 
-module.exports = WorkspaceManager;
+module.exports = WorkspacesController;

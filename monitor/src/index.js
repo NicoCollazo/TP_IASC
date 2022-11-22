@@ -13,7 +13,7 @@ const frontURL = "http://localhost:3001";
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-	cors: { origin: [serversURL, frontURL], credentials: true },
+	cors: { origin: "*", credentials: true },
 });
 server.listen(port);
 
@@ -26,6 +26,7 @@ io.on("connection", (socket) => {
 	});
 
 	setInterval(() => {
+		logger.info("Asking all servers for status...");
 		socket.emit("getStatus");
 	}, 6000);
 });

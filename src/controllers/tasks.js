@@ -1,76 +1,55 @@
 const logger = require("../utils/logger")(__filename);
+const { WorkspaceManager, TaskManager } = require("../models");
 
-/* Schema:
-	[
-		{	
-			board: Literal(Todo, Doing, Done),
-			workspaceName: string,
-			owner: string,
-			id: string,
-			content: string,
-			editing: boolean
-		}
-	]
-*/
-class TaskManager {
-	constructor(tasks) {
-		// To locally hold the list of all created tasks
-		this._tasks = [...tasks] || [];
-	}
-
-	// Add a new task to the list
-	add = (task) => {
-		this._tasks.push(task);
-		return task;
-	};
-
-	// Get all tasks related to a given workspace
-	get = (workspaceName, owner) => {
-		let allTasks = this._tasks.filter(
-			(task) => task.workspaceName === workspaceName && task.owner === owner
+class TasksController {
+	addTask = (socket, task, ack) => {
+		const workspace = WorkspaceManager.getByName(
+			socket.user.username,
+			task.workspaceName
 		);
-		logger.info(JSON.stringify(allTasks));
-		return allTasks;
-	};
-
-	getTaskIndex = (taskId) => {
-		return this._tasks.findIndex((t) => t.id === taskId);
-	};
-
-	edit = (newTaskData) => {
-		const idx = this.getTaskIndex(newTaskData.id);
-		this._tasks[idx] = newTaskData;
-		return newTaskData;
-	};
-
-	_deleteOne = (taskId) => {
-		const idx = this.getTaskIndex(taskId);
-		try {
-			this._tasks.splice(idx, 1);
-		} catch (err) {
-			logger.error(`Failed to delete task ${taskId}`);
-			throw err;
-		}
-	};
-
-	_deleteMany = (taskIds) => {
-		taskIds.forEach((taskId) => {
-			this.delete(taskId);
+		const updatedTask = TaskManager.add({
+			...task,
+			owner: socket.user.username,
 		});
+		logger.info(
+			`Adding task ${JSON.stringify(updatedTask)} to workspace ${workspace.id}`
+		);
+		// Broadcast the task to the other nodes.
+		socket.to(workspace.id).emit("newTask", updatedTask);
+		// ACK to the specific node.
+		ack(updatedTask);
 	};
 
-	delete = (param) => {
-		if (Array.isArray(param)) {
-			this._deleteMany(param);
-		} else {
-			this._deleteOne(param);
+	editTask = (socket, task, ack) => {
+		const workspace = WorkspaceManager.getByName(
+			socket.user.username,
+			task.workspaceName
+		);
+		const updatedTask = TaskManager.edit(task);
+		logger.info(`Editing task ${updatedTask.id} on workspace ${workspace.id}`);
+		// Broadcast to all other nodes.
+		socket.to(workspace.id).emit("taskEdited", updatedTask);
+		// Responde to sender node.
+		ack(updatedTask);
+	};
+
+	deleteTask = (socket, task, ack) => {
+		const workspace = WorkspaceManager.getByName(
+			socket.user.username,
+			task.workspaceName
+		);
+		try {
+			TaskManager.delete(task.id);
+			logger.info(`Deleted task ${task.id} on workspace ${workspace.id}`);
+			socket.to(workspace.id).emit("taskDeleted", task);
+			ack(task);
+		} catch (err) {
+			logger.error({
+				message: `An error has occurred trying to delete task ${task.id}`,
+				trace: err.message,
+			});
 		}
-	};
-
-	// Get all the tasks ever created
-	getAll = () => {
-		return this._tasks;
 	};
 }
 
-module.exports = TaskManager;
+module.exports = TasksController;

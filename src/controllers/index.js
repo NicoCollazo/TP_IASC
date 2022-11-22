@@ -1,11 +1,11 @@
-const UsersController = require("./users");
 const authenticate = require("./auth");
-const WorkspaceManager = require("./workspaces");
-const TaskManager = require("./tasks");
+const TasksController = require("./tasks");
+const UsersController = require("./users");
+const WorkspacesController = require("./workspaces");
 
 module.exports = {
-	UsersController,
 	authenticate,
-	TaskManager,
-	WorkspaceManager,
+	TasksController,
+	UsersController,
+	WorkspacesController,
 };

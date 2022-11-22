@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const cookie = require("cookie");
 
-const { UserDb } = require("../models");
 const getLogger = require("../utils/logger");
 const logger = getLogger(__filename);
 
@@ -22,7 +21,7 @@ const verifyToken = (req, res, next) => {
 	}
 };
 
-const verifyTokenSocket = (socket, next) => {
+const verifyTokenSocket = (UserDb, socket, next) => {
 	const socket_cookies = socket.request.headers.cookie;
 	const auth_token = cookie.parse(socket_cookies).auth_token;
 	if (auth_token) {

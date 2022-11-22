@@ -53,9 +53,14 @@ class UsersDb {
 
 		return bcrypt.compare(password, user.passwordHash);
 	};
+
+	set = (users) => {
+		this._users = users;
+	};
+
+	getAll = () => {
+		return this._users;
+	};
 }
 
-const usersDb = new UsersDb();
-usersDb.register("Ramiro", "password");
-
-module.exports = usersDb;
+module.exports = UsersDb;
