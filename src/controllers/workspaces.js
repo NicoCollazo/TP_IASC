@@ -33,19 +33,23 @@ class WorkspacesController {
 				socket.user.username
 			} is attempting to create a Workspace named: ${JSON.stringify(workspace)}`
 		);
-		stateManagerSocket.emit(
-			"attemptToAddWorkspace",
-			{
-				workspace,
-				username: socket.user.username,
-			},
-			(workspace) => {
-				WorkspaceManager.add(socket.user.username, workspace).then((w) => {
-					socket.broadcast.emit("newWorkspace", w);
-					ack(w);
-				});
-			}
-		);
+		WorkspaceManager.add(socket.user.username, workspace).then((w) => {
+			socket.broadcast.emit("newWorkspace", w);
+			ack(w);
+		});
+		// stateManagerSocket.emit(
+		// 	"attemptToAddWorkspace",
+		// 	{
+		// 		workspace,
+		// 		username: socket.user.username,
+		// 	},
+		// 	(workspace) => {
+		// 		WorkspaceManager.add(socket.user.username, workspace).then((w) => {
+		// 			socket.broadcast.emit("newWorkspace", w);
+		// 			ack(w);
+		// 		});
+		// 	}
+		// );
 	};
 
 	deleteWorkspace = (socket, workspace, ack) => {
