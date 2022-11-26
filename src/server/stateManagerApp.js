@@ -7,7 +7,7 @@ const workspaceManager = require("../models/workspaces");
 const serverName = process.env.SERVER_NAME || "SERVER_1";
 const stateManagerPort = process.env.STATEMANAGER_PORT || "8090";
 
-const baseURL = "http://localhost";
+const baseURL = process.env.BASE_URL || "http://localhost";
 const stateManagerURL = `${baseURL}:${stateManagerPort}`;
 
 const initStateManagerSocketApp = () => {

@@ -12,7 +12,7 @@ const app = express();
 const apiPort = process.env.PORT || "8080";
 const ioPort = process.env.IO_PORT || "8081";
 const frontPort = process.env.FRONT_PORT || "3000";
-const baseURL = "http://localhost";
+const baseURL = process.env.BASE_URL || "http://localhost";
 const frontURL = `${baseURL}:${frontPort}`;
 
 // Api
