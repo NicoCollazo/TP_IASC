@@ -2,6 +2,13 @@ const logger = require("../utils/logger")(__filename);
 const { WorkspaceManager, TaskManager } = require("../models");
 
 class WorkspacesController {
+	_promiseEmitWithTimeout = (emitFunc, endpoint, data) => {
+		return new Promise((res, rej) => {
+			setTimeout(() => rej("Unable to acces stateManager"), 6000);
+			emitFunc(endpoint, data, (d) => res(d));
+		});
+	};
+
 	allWorkspaces = (socket, io) => {
 		logger.info(`User ${socket.user.username} connected`);
 		const user_workspaces = WorkspaceManager.getByUsername(
@@ -33,19 +40,25 @@ class WorkspacesController {
 				socket.user.username
 			} is attempting to create a Workspace named: ${JSON.stringify(workspace)}`
 		);
-		stateManagerSocket.emit(
+		this._promiseEmitWithTimeout(
+			// DONT FORGET TO BIND THE EMIT TO THE SOCKET.
+			// OTHERWISE IT WONT WORK.
+			stateManagerSocket.emit.bind(stateManagerSocket),
 			"attemptToAddWorkspace",
 			{
 				workspace,
 				username: socket.user.username,
-			},
-			(workspace) => {
+			}
+		)
+			.then((workspace) => {
 				WorkspaceManager.add(socket.user.username, workspace).then((w) => {
 					socket.broadcast.emit("newWorkspace", w);
 					ack(w);
 				});
-			}
-		);
+			})
+			.catch((err) => {
+				logger.error(err);
+			});
 	};
 
 	deleteWorkspace = (socket, workspace, ack) => {
