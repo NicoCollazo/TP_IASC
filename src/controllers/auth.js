@@ -1,12 +1,11 @@
 const { UserDb } = require("../models");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const logger = require("../utils/logger")(__filename);
 
 const authenticate = async (req, res) => {
 	// Validate the username exists.
 	const user = UserDb.findOne(req.body.username);
-	if (!user) {
+	if (user === undefined) {
 		logger.error("Username doesn't exist in the DB");
 		return res.status(400).json({
 			error: "Username doesn't exist in the DB",
