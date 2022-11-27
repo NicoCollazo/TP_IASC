@@ -1,14 +1,8 @@
 const logger = require("../utils/logger")(__filename);
+const BaseController = require("./base");
 const { WorkspaceManager, TaskManager } = require("../models");
 
-class WorkspacesController {
-	_promiseEmitWithTimeout = (emitFunc, endpoint, data) => {
-		return new Promise((res, rej) => {
-			setTimeout(() => rej("Unable to acces stateManager"), 6000);
-			emitFunc(endpoint, data, (d) => res(d));
-		});
-	};
-
+class WorkspacesController extends BaseController {
 	allWorkspaces = (socket, io) => {
 		logger.info(`User ${socket.user.username} connected`);
 		const user_workspaces = WorkspaceManager.getByUsername(
@@ -41,8 +35,6 @@ class WorkspacesController {
 			} is attempting to create a Workspace named: ${JSON.stringify(workspace)}`
 		);
 		this._promiseEmitWithTimeout(
-			// DONT FORGET TO BIND THE EMIT TO THE SOCKET.
-			// OTHERWISE IT WONT WORK.
 			stateManagerSocket.emit.bind(stateManagerSocket),
 			"attemptToAddWorkspace",
 			{
@@ -62,16 +54,28 @@ class WorkspacesController {
 	};
 
 	deleteWorkspace = (socket, workspace, ack) => {
-		WorkspaceManager.delete(workspace).then((w) => {
-			const workspaceTasks = TaskManager.get(
-				workspace.name,
+		logger.info(
+			`User ${
 				socket.user.username
-			);
-			TaskManager.delete(workspaceTasks.map((t) => t.id));
-			socket.broadcast.emit("deleteWorkspace", w);
-			ack(w);
-			socket.leave(workspace.id);
-		});
+			} is attempting to delete a Workspace named: ${JSON.stringify(workspace)}`
+		);
+		this._promiseEmitWithTimeout(
+			stateManagerSocket.emit.bind(stateManagerSocket),
+			"attemptToDeleteWorkspace",
+			{ workspace, username: socket.user.username }
+		)
+			.then((workspace) => {
+				WorkspaceManager.delete(workspace).then((w) => {
+					const workspaceTasks = TaskManager.get(w.name, socket.user.username);
+					TaskManager.delete(workspaceTasks.map((t) => t.id));
+					ioServer.in(w.id).socketsLeave(w.id);
+					io.emit("deleteWorkspace", w);
+					ack(w);
+				});
+			})
+			.catch((err) => {
+				logger.error(err);
+			});
 	};
 }
 

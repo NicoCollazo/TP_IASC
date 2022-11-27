@@ -27,7 +27,6 @@ class WorkspaceManager {
 			shared: [],
 		};
 		this._workspaces.push(workspace);
-		logger.info("Addition Successfull");
 		return workspace;
 	};
 

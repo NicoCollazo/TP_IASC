@@ -9,6 +9,7 @@ dotenv.config();
 const app = express(cors("*"));
 
 const port = process.env.PORT || "8090";
+const attemptTimeouts = process.env.SOCKET_ATTEMPT_TIMEOUTS || 3000;
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -82,22 +83,144 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("attemptToAddWorkspace", (data, ack) => {
-		io.timeout(3000).emit("checkAddWorkspace", data, (err, responses) => {
-			if (err || !responsesAreTrue(responses)) {
-				logger.info({
-					message: "Attempt to add workspaces failed",
-					responses,
-					err,
-				});
-				io.emit("cancelAttemptToAddWorkspace", data);
-				return;
-			}
+		io.timeout(attemptTimeouts).emit(
+			"checkAddWorkspace",
+			data,
+			(err, responses) => {
+				if (err || !responsesAreTrue(responses)) {
+					logger.error({
+						message: "Attempt to add workspaces failed",
+						responses,
+						err,
+					});
+					io.emit("cancelAttemptToAddWorkspace", data);
+					return;
+				}
 
-			workspaceManagerInstance.add(data.username, data.workspace).then((w) => {
-				socket.broadcast.emit("commitAddWorkspace", data);
-				ack(w);
-			});
-		});
+				workspaceManagerInstance
+					.add(data.username, data.workspace)
+					.then((w) => {
+						socket.broadcast.emit("commitAddWorkspace", data);
+						ack(w);
+					})
+					.catch((err) => logger.error(err));
+			}
+		);
+	});
+
+	socket.on("attemptToAddTask", (data, ack) => {
+		io.timeout(attemptTimeouts).emit(
+			"checkAddTask",
+			data.task,
+			(err, responses) => {
+				if (err || !responsesAreTrue(responses)) {
+					logger.error({
+						message: "Attempt to add tasks failed",
+						responses,
+						err,
+					});
+					io.emit("cancelAttemptToAddTask", data);
+					return;
+				}
+
+				tasksManagerInstance
+					.add({ ...data.task, owner: data.workspace.owner })
+					.then((task) => {
+						socket.broadcast.emit("commitAddTask", {
+							task,
+							workspace: data.workspace,
+						});
+						ack(task);
+					})
+					.catch((err) => logger.error(err));
+			}
+		);
+	});
+
+	socket.on("attemptToEditTask", (data, ack) => {
+		io.timeout(attemptTimeouts).emit(
+			"checkEditTask",
+			data.task,
+			(err, responses) => {
+				if (err || !responsesAreTrue(responses)) {
+					logger.error({
+						message: "Attempt to Edit tasks failed",
+						responses,
+						err,
+					});
+					io.emit("cancelAttemptToEditTask", data);
+					return;
+				}
+
+				tasksManagerInstance
+					.edit(data.task)
+					.then((task) => {
+						socket.broadcast.emit("commitEditTask", {
+							task,
+							workspace: data.workspace,
+						});
+						ack(task);
+					})
+					.catch((err) => logger.error(err));
+			}
+		);
+	});
+
+	socket.on("attemptToDeleteWorkspace", (data, ack) => {
+		io.timeout(attemptTimeouts).emit(
+			"checkDeleteWorkspace",
+			data,
+			(err, responses) => {
+				if (err || !responsesAreTrue(responses)) {
+					logger.error({
+						message: "Attempt to Delete workspace failed",
+						responses,
+						err,
+					});
+					io.emit("cancelAttemptToDeleteWorkspace", data);
+					return;
+				}
+
+				workspaceManagerInstance
+					.delete(data.workspace)
+					.then((w) => {
+						socket.broadcast.emit("commitDeleteWorkspace", {
+							username: data.username,
+							workspace: w,
+						});
+						ack(w);
+					})
+					.catch((err) => logger.error(err));
+			}
+		);
+	});
+	socket.on("attemptToDeleteTask", (data, ack) => {
+		io.timeout(attemptTimeouts).emit(
+			"checkDeleteTask",
+			data.task,
+			(err, responses) => {
+				if (err || !responsesAreTrue(responses)) {
+					logger.error({
+						message: "Attempt to Delete tasks failed",
+						responses,
+						err,
+					});
+					io.emit("cancelAttemptToDeleteTask", data.task);
+					return;
+				}
+
+				tasksManagerInstance
+					.delete(data.task)
+					.then(() => {
+						socket.broadcast.emit("commitDeleteTask", {
+							task: data.task,
+							workspace: data.workspace,
+						});
+						ack(data.task);
+					})
+					.catch((err) => logger.error(err));
+			}
+		);
 	});
 
 	socket.on("disconnect", () => {

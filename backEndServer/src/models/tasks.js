@@ -23,10 +23,12 @@ class TaskManager {
 	};
 
 	// Add a new task to the list
-	add = (task) => {
+	add = async (task) => {
 		this._tasks.push(task);
 		return task;
 	};
+
+	canAdd = (task) => !this._taskExists(task);
 
 	// Get all tasks related to a given workspace
 	get = (workspaceName, owner) => {
@@ -37,17 +39,21 @@ class TaskManager {
 		return allTasks;
 	};
 
+	_taskExists = (task) => this._tasks.map((t) => t.id).includes(task.id);
+
 	getTaskIndex = (taskId) => {
 		return this._tasks.findIndex((t) => t.id === taskId);
 	};
 
-	edit = (newTaskData) => {
+	edit = async (newTaskData) => {
 		const idx = this.getTaskIndex(newTaskData.id);
 		this._tasks[idx] = newTaskData;
 		return newTaskData;
 	};
 
-	_deleteOne = (taskId) => {
+	canEdit = (task) => this._taskExists(task);
+
+	_deleteOne = async (taskId) => {
 		const idx = this.getTaskIndex(taskId);
 		try {
 			this._tasks.splice(idx, 1);
@@ -57,19 +63,21 @@ class TaskManager {
 		}
 	};
 
-	_deleteMany = (taskIds) => {
+	_deleteMany = async (taskIds) => {
 		taskIds.forEach((taskId) => {
 			this.delete(taskId);
 		});
 	};
 
-	delete = (param) => {
+	delete = async (param) => {
 		if (Array.isArray(param)) {
-			this._deleteMany(param);
+			await this._deleteMany(param);
 		} else {
-			this._deleteOne(param);
+			await this._deleteOne(param);
 		}
 	};
+
+	canDelete = (task) => this._taskExists(task);
 
 	// Get all the tasks ever created
 	getAll = () => {

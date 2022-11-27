@@ -1,7 +1,7 @@
 services:
   back:
     build: 
-      context: .
+      context: ./backEndServer
       dockerfile: ./Dockerfile
     image: tp_iasc/back
     ports:
@@ -20,12 +20,12 @@ services:
       - "3000:3000"
     env_file:
       - ./environments/.env.front.deployed
-  # stateManager:
-  #   build: 
-  #     context: ./stateManager
-  #     dockerfile: ./Dockerfile
-  #   image: tp_iasc/stateManager
-  #   ports:
-  #     - "8090:8090"
-  #   env_file:
-  #     - ./environments/.env.stateManager.deployed
+  statemanager:
+    build:
+      context: ./stateManager
+      dockerfile: ./Dockerfile
+    image: tp_iasc/state_manager
+    ports:
+      - "8090:8090"
+    env_file:
+      - ./environments/.env.stateManager.deployed

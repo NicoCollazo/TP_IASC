@@ -7,7 +7,7 @@ const initStateManagerSocketApp = require("./stateManagerApp");
 const DEBUG = process.env.DEBUG || false;
 
 const initSocketApp = (io) => {
-	const stateManagerSocket = initStateManagerSocketApp();
+	const stateManagerSocket = initStateManagerSocketApp(io);
 	const tasksController = new TasksController();
 	const workspacesController = new WorkspacesController();
 
@@ -35,15 +35,15 @@ const initSocketApp = (io) => {
 		});
 
 		socket.on("addTask", (task, ack) =>
-			tasksController.addTask(socket, task, ack)
+			tasksController.addTask(socket, stateManagerSocket, task, ack)
 		);
 
 		socket.on("editTask", (task, ack) =>
-			tasksController.editTask(socket, task, ack)
+			tasksController.editTask(socket, stateManagerSocket, task, ack)
 		);
 
 		socket.on("deleteTask", (task, ack) =>
-			tasksController.deleteTask(socket, task, ack)
+			tasksController.deleteTask(socket, stateManagerSocket, task, ack)
 		);
 
 		socket.on("disconnect", () => {

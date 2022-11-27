@@ -8,7 +8,7 @@ const authenticate = async (req, res) => {
 	if (user === undefined) {
 		logger.error("Username doesn't exist in the DB");
 		return res.status(400).json({
-			error: "Username doesn't exist in the DB",
+			error: "Username or password is incorrect",
 		});
 	}
 
@@ -18,9 +18,9 @@ const authenticate = async (req, res) => {
 		req.body.password
 	);
 	if (!validPassword) {
-		logger.error("Username or password are incorrect");
+		logger.error("Username or password is incorrect");
 		return res.status(400).json({
-			error: "Username or password are incorrect",
+			error: "Username or password is incorrect",
 		});
 	}
 
