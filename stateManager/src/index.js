@@ -48,7 +48,7 @@ const test_tasks = [
 ];
 
 const usersDb = new UsersDb();
-usersDb.register("Ramiro", "password"); // Create a Default user.
+usersDb.register("Ramiro", "password");
 const tasksManagerInstance = new TaskManager(test_tasks);
 const workspaceManagerInstance = new WorkspaceManager(test_workspaces);
 /* ----------------------- */

@@ -46,18 +46,6 @@ const getItems = (count, list) =>
 		};
 	});
 
-const removeFromList = (list, index) => {
-	const result = Array.from(list);
-	const [removed] = result.splice(index, 1);
-	return [removed, result];
-};
-
-const addToList = (list, index, element) => {
-	const result = Array.from(list);
-	result.splice(index, 0, element);
-	return result;
-};
-
 const lists = [
 	{
 		name: "To Do",
@@ -106,6 +94,18 @@ function DragList({ workspaceName }) {
 				(t) => t.id === editedTask.id
 			);
 			newTasks[editedTask.board][editedTaskIdx] = editedTask;
+			return newTasks;
+		});
+	};
+
+	const handleSocketDrop = (editedTask, prevBoard) => {
+		setElements((prevTasks) => {
+			const newTasks = { ...prevTasks };
+			newTasks[prevBoard] = newTasks[prevBoard].filter(
+				(t) => t.id !== editedTask.id
+			);
+			newTasks[editedTask.board].push(editedTask);
+
 			return newTasks;
 		});
 	};
@@ -168,7 +168,7 @@ function DragList({ workspaceName }) {
 		);
 		elementsCopy[item.board][elementIndex].title = e.target.value;
 		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
-			handleAckMessage(t, handleSocketEdit, null)
+			handleAckMessage(t, handleSocketEdit)
 		);
 	}
 
@@ -178,14 +178,16 @@ function DragList({ workspaceName }) {
 			(i) => i.id === item.id
 		);
 		elementsCopy[item.board][elementIndex].content = e.target.value;
-		setElements(elementsCopy);
+		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
+			handleAckMessage(t, handleSocketEdit)
+		);
 	}
 
 	function handleDelete(item) {
 		// TODO: Hacer Error callback para el socket delete.
 		// Con su respectivo Display error message.
 		socket.emit("deleteTask", item, (t) =>
-			handleAckMessage(t, handleSocketDelete, null)
+			handleAckMessage(t, handleSocketDelete)
 		);
 	}
 
@@ -207,27 +209,17 @@ function DragList({ workspaceName }) {
 	}
 
 	const onDragEnd = (result) => {
+		//TODO: Check why its so slow on the movement.
 		if (!result.destination) {
 			return;
 		}
-		const listCopy = { ...elements };
-		const sourceList = listCopy[result.source.droppableId];
-		const [removedElement, newSourceList] = removeFromList(
-			sourceList,
-			result.source.index
-		);
-
-		listCopy[result.source.droppableId] = newSourceList;
-		const destinationList = listCopy[result.destination.droppableId];
+		const prevBoard = result.source.droppableId;
+		const removedElement = elements[prevBoard][result.source.index];
 		removedElement["board"] = result.destination.droppableId;
 
-		listCopy[result.destination.droppableId] = addToList(
-			destinationList,
-			result.destination.index,
-			removedElement
+		socket.emit("editTask", removedElement, (t) =>
+			handleAckMessage(t, (e) => handleSocketDrop(e, prevBoard))
 		);
-
-		setElements(listCopy);
 	};
 
 	const toggleOk = (open, item) => {

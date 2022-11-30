@@ -16,11 +16,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { LockOutlined as LockOutlinedIcon } from "@mui/icons-material";
 
-const AUTH_URL = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_API_PORT}/api/auth`;
+const API_URL = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_API_PORT}`;
+const AUTH_URL = `${API_URL}/api/auth`;
+const USERS_URL = `${API_URL}/api/users`;
 
 const theme = createTheme();
 
-export default function Auth() {
+export default function Register() {
 	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
 	const navigate = useNavigate();
 
@@ -34,24 +36,36 @@ export default function Auth() {
 		event.preventDefault();
 
 		const data = new FormData(event.currentTarget);
-		const loginValues = {
-			username: data.get("username"),
+		const registerValues = {
+			name: data.get("username"),
 			password: data.get("password"),
 		};
 
 		axios
-			.post(AUTH_URL, loginValues, { withCredentials: true })
+			.post(USERS_URL, registerValues, { withCredentials: true })
+			.then((response) => {
+				if (response.data.userId !== undefined) {
+					// Log the user in.
+					return axios.post(AUTH_URL, registerValues, {
+						withCredentials: true,
+					});
+				} else {
+					throw new Error("There was an issue with the user creation");
+				}
+			})
 			.then((response) => {
 				if (response.data.token !== undefined) {
 					navigate("/workspace");
+				} else {
+					throw new Error("There was an issue with the user sign in");
 				}
 			})
 			.catch((err) => {
 				console.log(err);
-				let errMsg;
+				let errMsg = err;
 				try {
 					errMsg = err.response.data.error;
-				} catch {
+				} catch (_) {
 					errMsg = err.message;
 				}
 				setErrorNotif({ open: true, message: errMsg });
@@ -88,7 +102,7 @@ export default function Auth() {
 						<LockOutlinedIcon />
 					</Avatar>
 					<Typography component="h1" variant="h5">
-						Sign in
+						Register
 					</Typography>
 					<Box
 						component="form"
@@ -123,21 +137,21 @@ export default function Auth() {
 							variant="contained"
 							sx={{ mt: 3, mb: 2, backgroundColor: "#478ea1" }}
 						>
-							Sign In
+							Register
 						</Button>
 					</Box>
+					<Button
+						fullWidth
+						variant="contained"
+						sx={{ mt: 3, mb: 2, backgroundColor: "#478ea1" }}
+						onClick={(e) => {
+							e.preventDefault();
+							navigate("/signIn");
+						}}
+					>
+						Already have an account? Sign In here.
+					</Button>
 				</Box>
-				<Button
-					fullWidth
-					variant="contained"
-					sx={{ mt: 3, mb: 2, backgroundColor: "#478ea1" }}
-					onClick={(e) => {
-						e.preventDefault();
-						navigate("/");
-					}}
-				>
-					Don't have an account? Register here.
-				</Button>
 			</Container>
 		</ThemeProvider>
 	);

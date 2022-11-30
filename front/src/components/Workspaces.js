@@ -36,7 +36,8 @@ const Workspaces = () => {
 		// If connection fails, we redirect to Login.
 		socket.on("connect_error", () => {
 			// TODO: Let the user know about the redirect.
-			navigate("/");
+			// Maybe do a 2 sec timer.
+			navigate("/signIn");
 		});
 
 		socket.emit("allWorkspaces");
