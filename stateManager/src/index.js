@@ -48,7 +48,7 @@ const test_tasks = [
 ];
 
 const usersDb = new UsersDb();
-usersDb.register("Ramiro", "password");
+usersDb.register("Ramiro", "password"); // Create a Default user.
 const tasksManagerInstance = new TaskManager(test_tasks);
 const workspaceManagerInstance = new WorkspaceManager(test_workspaces);
 /* ----------------------- */
@@ -60,6 +60,7 @@ setInterval(() => {
 }, 6000);
 
 const responsesAreTrue = (responses) => {
+	logger.info(`Response from servers: ${responses}`);
 	return (
 		responses &&
 		responses.length === activeServers.length &&
@@ -80,6 +81,31 @@ io.on("connection", (socket) => {
 				usersDb.getAll()
 			);
 		}
+	});
+
+	socket.on("attemptToAddUser", (data, ack) => {
+		io.timeout(attemptTimeouts).emit(
+			"checkAddUser",
+			data.username,
+			(err, responses) => {
+				if (err || !responsesAreTrue(responses)) {
+					logger.error({
+						message: "Attempt to add user failed",
+						responses,
+						err,
+					});
+					return;
+				}
+
+				usersDb
+					.register(data.username, data.password)
+					.then((_) => {
+						socket.broadcast.emit("commitAddUser", data);
+						ack(data);
+					})
+					.catch((err) => logger.error(err));
+			}
+		);
 	});
 
 	socket.on("attemptToAddWorkspace", (data, ack) => {

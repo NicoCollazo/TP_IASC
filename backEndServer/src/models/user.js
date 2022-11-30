@@ -57,6 +57,10 @@ class UsersDb {
 	set = (users) => {
 		this._users = users;
 	};
+
+	canAdd = (username) => {
+		return !this.findOne(username);
+	};
 }
 
 const usersDb = new UsersDb();

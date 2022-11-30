@@ -90,6 +90,14 @@ const initStateManagerSocketApp = (ioServer) => {
 		);
 	});
 
+	stateManagerSocket.on("checkAddUser", (username, ack) => {
+		ack(UserDb.canAdd(username));
+	});
+
+	stateManagerSocket.on("commitAddUser", ({ username, password }) => {
+		UserDb.register(username, password);
+	});
+
 	stateManagerSocket.on("disconnect", () => {
 		logger.info("Disconnected from State Manager");
 	});

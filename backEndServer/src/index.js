@@ -5,8 +5,7 @@ const express = require("express");
 const { Server } = require("socket.io");
 dotenv.config();
 
-const router = require("./routers");
-const { initApi, initSocketApp, healthCheck } = require("./server");
+const { initApp, healthCheck } = require("./server");
 
 const app = express();
 const apiPort = process.env.PORT || "8080";
@@ -15,10 +14,10 @@ const frontPort = process.env.FRONT_PORT || "3000";
 const baseURL = process.env.BASE_URL || "http://localhost";
 const frontURL = `${baseURL}:${frontPort}`;
 
-// Api
-initApi(app);
+// Api Configuration.
+app.set("json spaces", 4);
+app.use(express.json());
 app.use(cors({ origin: frontURL, credentials: true }));
-app.use("/api", router);
 app.listen(apiPort);
 
 // Socket Server
@@ -29,6 +28,6 @@ const io = new Server(server, {
 server.listen(ioPort);
 
 healthCheck();
-initSocketApp(io);
+initApp(io, app);
 
 module.exports = app;

@@ -1,10 +1,12 @@
 const { UsersController } = require("../controllers");
 
-const usersRouter = (router) => {
-  const controller = new UsersController();
+const usersRouter = (router, stateManagerSocket) => {
+	const controller = new UsersController();
 
-  router.post("/users", controller.registerUser);
-  return router;
+	router.post("/users", async (req, res) =>
+		controller.registerUser(req, res, stateManagerSocket)
+	);
+	return router;
 };
 
 module.exports = usersRouter;

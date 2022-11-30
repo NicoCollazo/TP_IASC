@@ -1,15 +1,23 @@
+const { Router } = require("express");
+
 const { UserDb } = require("../models");
+const { authRouter, usersRouter } = require("../routers");
 const logger = require("../utils/logger")(__filename);
 const { verifyTokenSocket } = require("../middlewares");
-const { WorkspacesController, TasksController } = require("../controllers");
 const initStateManagerSocketApp = require("./stateManagerApp");
+const { WorkspacesController, TasksController } = require("../controllers");
 
+const router = Router();
 const DEBUG = process.env.DEBUG || false;
 
-const initSocketApp = (io) => {
+const initApp = (io, expressApp) => {
 	const stateManagerSocket = initStateManagerSocketApp(io);
 	const tasksController = new TasksController();
 	const workspacesController = new WorkspacesController();
+
+	authRouter(router);
+	usersRouter(router, stateManagerSocket);
+	expressApp.use("/api", router);
 
 	io.use((s, next) => verifyTokenSocket(UserDb, s, next));
 	io.on("connection", (socket) => {
@@ -59,4 +67,4 @@ const initSocketApp = (io) => {
 	});
 };
 
-module.exports = initSocketApp;
+module.exports = initApp;
