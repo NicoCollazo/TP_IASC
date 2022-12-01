@@ -89,11 +89,13 @@ io.on("connection", (socket) => {
 			data.username,
 			(err, responses) => {
 				if (err || !responsesAreTrue(responses)) {
+					const message = "Attempt to add user failed";
 					logger.error({
-						message: "Attempt to add user failed",
+						message,
 						responses,
 						err,
 					});
+					ack({ error: err || message });
 					return;
 				}
 
@@ -103,7 +105,10 @@ io.on("connection", (socket) => {
 						socket.broadcast.emit("commitAddUser", data);
 						ack(data);
 					})
-					.catch((err) => logger.error(err));
+					.catch((err) => {
+						logger.error(err);
+						ack({ error: err.message });
+					});
 			}
 		);
 	});
@@ -111,15 +116,17 @@ io.on("connection", (socket) => {
 	socket.on("attemptToAddWorkspace", (data, ack) => {
 		io.timeout(attemptTimeouts).emit(
 			"checkAddWorkspace",
-			data,
+			data.workspace,
 			(err, responses) => {
 				if (err || !responsesAreTrue(responses)) {
+					const message = "Attempt to add workspaces failed";
 					logger.error({
-						message: "Attempt to add workspaces failed",
+						message,
 						responses,
 						err,
 					});
 					io.emit("cancelAttemptToAddWorkspace", data);
+					ack({ error: err || message });
 					return;
 				}
 
@@ -129,7 +136,10 @@ io.on("connection", (socket) => {
 						socket.broadcast.emit("commitAddWorkspace", data);
 						ack(w);
 					})
-					.catch((err) => logger.error(err));
+					.catch((err) => {
+						logger.error(err);
+						ack({ error: err.message });
+					});
 			}
 		);
 	});
@@ -140,12 +150,14 @@ io.on("connection", (socket) => {
 			data.task,
 			(err, responses) => {
 				if (err || !responsesAreTrue(responses)) {
+					const message = "Attempt to add tasks failed";
 					logger.error({
-						message: "Attempt to add tasks failed",
+						message,
 						responses,
 						err,
 					});
 					io.emit("cancelAttemptToAddTask", data);
+					ack({ error: err || message });
 					return;
 				}
 
@@ -158,7 +170,10 @@ io.on("connection", (socket) => {
 						});
 						ack(task);
 					})
-					.catch((err) => logger.error(err));
+					.catch((err) => {
+						logger.error(err);
+						ack({ error: err.message });
+					});
 			}
 		);
 	});
@@ -169,12 +184,14 @@ io.on("connection", (socket) => {
 			data.task,
 			(err, responses) => {
 				if (err || !responsesAreTrue(responses)) {
+					const message = "Attempt to Edit tasks failed";
 					logger.error({
-						message: "Attempt to Edit tasks failed",
+						message,
 						responses,
 						err,
 					});
 					io.emit("cancelAttemptToEditTask", data);
+					ack({ error: err || message });
 					return;
 				}
 
@@ -187,7 +204,10 @@ io.on("connection", (socket) => {
 						});
 						ack(task);
 					})
-					.catch((err) => logger.error(err));
+					.catch((err) => {
+						logger.error(err);
+						ack({ error: err.message });
+					});
 			}
 		);
 	});
@@ -198,12 +218,14 @@ io.on("connection", (socket) => {
 			data,
 			(err, responses) => {
 				if (err || !responsesAreTrue(responses)) {
+					const message = "Attempt to Delete workspace failed";
 					logger.error({
 						message: "Attempt to Delete workspace failed",
 						responses,
 						err,
 					});
 					io.emit("cancelAttemptToDeleteWorkspace", data);
+					ack({ error: err || message });
 					return;
 				}
 
@@ -216,22 +238,28 @@ io.on("connection", (socket) => {
 						});
 						ack(w);
 					})
-					.catch((err) => logger.error(err));
+					.catch((err) => {
+						logger.error(err);
+						ack({ error: err.message });
+					});
 			}
 		);
 	});
+
 	socket.on("attemptToDeleteTask", (data, ack) => {
 		io.timeout(attemptTimeouts).emit(
 			"checkDeleteTask",
 			data.task,
 			(err, responses) => {
 				if (err || !responsesAreTrue(responses)) {
+					const message = "Attempt to Delete tasks failed";
 					logger.error({
-						message: "Attempt to Delete tasks failed",
+						message,
 						responses,
 						err,
 					});
 					io.emit("cancelAttemptToDeleteTask", data.task);
+					ack({ error: err || message });
 					return;
 				}
 
@@ -244,7 +272,10 @@ io.on("connection", (socket) => {
 						});
 						ack(data.task);
 					})
-					.catch((err) => logger.error(err));
+					.catch((err) => {
+						logger.error(err);
+						ack({ error: err.message });
+					});
 			}
 		);
 	});

@@ -4,10 +4,7 @@ const { WorkspaceManager, TaskManager } = require("../models");
 
 class TasksController extends BaseController {
 	addTask = async (socket, stateManagerSocket, task, ack) => {
-		const workspace = WorkspaceManager.getByName(
-			socket.user.username,
-			task.workspaceName
-		);
+		const workspace = WorkspaceManager.getByName(task.workspaceName);
 
 		this._promiseEmitWithTimeout(
 			stateManagerSocket.emit.bind(stateManagerSocket),
@@ -23,14 +20,12 @@ class TasksController extends BaseController {
 			})
 			.catch((err) => {
 				logger.error(err);
+				ack({ error: err });
 			});
 	};
 
 	editTask = (socket, stateManagerSocket, task, ack) => {
-		const workspace = WorkspaceManager.getByName(
-			socket.user.username,
-			task.workspaceName
-		);
+		const workspace = WorkspaceManager.getByName(task.workspaceName);
 
 		this._promiseEmitWithTimeout(
 			stateManagerSocket.emit.bind(stateManagerSocket),
@@ -46,14 +41,12 @@ class TasksController extends BaseController {
 			})
 			.catch((err) => {
 				logger.error(err);
+				ack({ error: err });
 			});
 	};
 
 	deleteTask = (socket, stateManagerSocket, task, ack) => {
-		const workspace = WorkspaceManager.getByName(
-			socket.user.username,
-			task.workspaceName
-		);
+		const workspace = WorkspaceManager.getByName(task.workspaceName);
 		this._promiseEmitWithTimeout(
 			stateManagerSocket.emit.bind(stateManagerSocket),
 			"attemptToDeleteTask",
@@ -70,6 +63,7 @@ class TasksController extends BaseController {
 			})
 			.catch((err) => {
 				logger.error(err);
+				ack({ error: err });
 			});
 	};
 }

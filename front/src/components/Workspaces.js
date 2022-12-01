@@ -3,27 +3,30 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import {
+	Box,
 	Card,
-	CardHeader,
-	CardContent,
-	Container,
-	Typography,
+	Grid,
+	Alert,
+	Button,
 	AppBar,
 	Toolbar,
-	Box,
+	Snackbar,
+	Container,
 	TextField,
-	Button,
-	Grid,
+	Typography,
+	CardHeader,
+	CardContent,
 } from "@mui/material";
 
 import { SocketContext } from "../context/socket";
 const socket_url = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_SOCKET_PORT}`;
 
 const Workspaces = () => {
+	const navigate = useNavigate();
 	const socket = useContext(SocketContext);
 	const [newWorkspace, setNewWorkspace] = useState("");
-	const navigate = useNavigate();
 	const [workspaceList, setWorkspaceList] = useState([]);
+	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
 
 	// Load the list of previously created workspaces once during the first rendering
 	useEffect(() => {
@@ -40,7 +43,7 @@ const Workspaces = () => {
 			navigate("/signIn");
 		});
 
-		socket.emit("allWorkspaces");
+		socket.emit("getAllWorkspaces");
 		socket.on("allWorkspaces", (workspaces) => {
 			setWorkspaceList(workspaces);
 		});
@@ -65,6 +68,10 @@ const Workspaces = () => {
 		};
 	});
 
+	const onCloseNotif = () => {
+		setErrorNotif({ open: false, message: "" });
+	};
+
 	const handleSubmit = () => {
 		setNewWorkspace("");
 		if (newWorkspace === "") {
@@ -74,11 +81,15 @@ const Workspaces = () => {
 			"addWorkspace",
 			{ name: newWorkspace, id: uuidv4() },
 			(nWorkspace) => {
-				if (nWorkspace.message === undefined) {
+				if (
+					nWorkspace.message === undefined &&
+					nWorkspace.error === undefined
+				) {
 					setWorkspaceList((oldList) => [...oldList, nWorkspace]);
 				} else {
-					// TODO: Display error message if no ACK is returned
-					// or if the ACK is not a workspace.
+					const errMsg = nWorkspace.message || nWorkspace.error;
+					console.log(errMsg);
+					setErrorNotif({ open: true, message: errMsg });
 				}
 			}
 		);
@@ -96,6 +107,16 @@ const Workspaces = () => {
 					<Typography variant="h6">TODO APP</Typography>
 				</Toolbar>
 			</AppBar>
+			<Snackbar
+				open={errorNotif.open}
+				onClose={onCloseNotif}
+				autoHideDuration={3000}
+				anchorOrigin={{ vertical: "top", horizontal: "center" }}
+			>
+				<Alert onClose={onCloseNotif} severity="error">
+					{errorNotif.message}
+				</Alert>
+			</Snackbar>
 			<Box sx={{ margin: 4, paddingTop: 4 }}>
 				<Card sx={{ marginTop: 4 }}>
 					<CardHeader

@@ -33,7 +33,8 @@ const initStateManagerSocketApp = (ioServer) => {
 	});
 
 	stateManagerSocket.on("checkAddWorkspace", (workspace, ack) => {
-		ack(WorkspaceManager.canAdd(workspace));
+		logger.info(`${JSON.stringify(workspace)}`);
+		ack(WorkspaceManager.canAdd(workspace.name));
 	});
 
 	stateManagerSocket.on("commitAddWorkspace", ({ username, workspace }) => {

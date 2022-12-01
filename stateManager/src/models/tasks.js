@@ -25,9 +25,9 @@ class TaskManager {
 	};
 
 	// Get all tasks related to a given workspace
-	get = (workspaceName, owner) => {
+	get = (workspaceName) => {
 		let allTasks = this._tasks.filter(
-			(task) => task.workspaceName === workspaceName && task.owner === owner
+			(task) => task.workspaceName === workspaceName
 		);
 		logger.info(JSON.stringify(allTasks));
 		return allTasks;

@@ -3,19 +3,15 @@ const BaseController = require("./base");
 const { WorkspaceManager, TaskManager } = require("../models");
 
 class WorkspacesController extends BaseController {
-	allWorkspaces = (socket, io) => {
-		logger.info(`User ${socket.user.username} connected`);
+	allWorkspaces = (socket) => {
 		const user_workspaces = WorkspaceManager.getByUsername(
 			socket.user.username
 		);
-		io.emit("allWorkspaces", user_workspaces);
+		socket.emit("allWorkspaces", user_workspaces);
 	};
 
 	openWorkspace = (socket, io, workspaceName) => {
-		const workspace = WorkspaceManager.getByName(
-			socket.user.username,
-			workspaceName
-		);
+		const workspace = WorkspaceManager.getByName(workspaceName);
 		logger.info(
 			`${socket.user.username} is joining workspace ${workspace.name}`
 		);
@@ -44,12 +40,13 @@ class WorkspacesController extends BaseController {
 		)
 			.then((workspace) => {
 				WorkspaceManager.add(socket.user.username, workspace).then((w) => {
-					socket.broadcast.emit("newWorkspace", w);
+					socket.to(socket.user.username).emit("newWorkspace", w);
 					ack(w);
 				});
 			})
 			.catch((err) => {
 				logger.error(err);
+				ack({ error: err });
 			});
 	};
 
@@ -69,12 +66,13 @@ class WorkspacesController extends BaseController {
 					const workspaceTasks = TaskManager.get(w.name, socket.user.username);
 					TaskManager.delete(workspaceTasks.map((t) => t.id));
 					ioServer.in(w.id).socketsLeave(w.id);
-					io.emit("deleteWorkspace", w);
+					socket.to(socket.user.username).emit("deleteWorkspace", w);
 					ack(w);
 				});
 			})
 			.catch((err) => {
 				logger.error(err);
+				ack({ error: err });
 			});
 	};
 }

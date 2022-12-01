@@ -21,8 +21,11 @@ const initApp = (io, expressApp) => {
 
 	io.use((s, next) => verifyTokenSocket(UserDb, s, next));
 	io.on("connection", (socket) => {
-		socket.on("allWorkspaces", () =>
-			workspacesController.allWorkspaces(socket, io)
+		logger.info(`User ${socket.user.username} connected`);
+		// Join a room for the user.
+		socket.join(socket.user.username);
+		socket.on("getAllWorkspaces", () =>
+			workspacesController.allWorkspaces(socket)
 		);
 
 		socket.on("openWorkspace", (workspaceName) =>

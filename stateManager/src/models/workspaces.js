@@ -43,8 +43,8 @@ class WorkspaceManager {
 		].sort();
 	};
 
-	getByName = (username, workspaceName) => {
-		return this.getByUsername(username).find((w) => w.name === workspaceName);
+	getByName = (workspaceName) => {
+		return this._workspaces.find((w) => w.name === workspaceName);
 	};
 
 	delete = async (workspace) => {

@@ -1,14 +1,16 @@
 import {
-	Container,
-	Typography,
-	AppBar,
-	Toolbar,
 	Box,
 	Chip,
-	TextField,
-	SwipeableDrawer,
-	Divider,
+	Alert,
 	Button,
+	AppBar,
+	Toolbar,
+	Divider,
+	Snackbar,
+	TextField,
+	Container,
+	Typography,
+	SwipeableDrawer,
 } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 import styled from "styled-components";
@@ -71,18 +73,34 @@ const generateLists = () =>
 	);
 
 function DragList({ workspaceName }) {
-	const [elements, setElements] = useState(generateLists());
+	const navigate = useNavigate();
+	const socket = useContext(SocketContext);
 	const [drawer, setDrawer] = useState({
 		open: false,
 		title: "",
 		content: "",
 	});
-	const socket = useContext(SocketContext);
-	const navigate = useNavigate();
+	const [elements, setElements] = useState(generateLists());
+	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
 
-	const handleAckMessage = (element, successCallback, errCallback) => {
-		if (element.message !== undefined) {
-			errCallback(e);
+	const onCloseNotif = () => {
+		setErrorNotif({ open: false, message: "" });
+	};
+
+	const handleSocketError = (data) => {
+		const errMsg = data.message || data.error;
+		console.log(errMsg);
+		setErrorNotif({ open: true, message: errMsg });
+	};
+
+	const handleAckMessage = (
+		element,
+		successCallback,
+		errCallback = handleSocketError
+	) => {
+		console.log(element);
+		if (element.message !== undefined || element.error !== undefined) {
+			return errCallback(element);
 		}
 		successCallback(element);
 	};
@@ -153,11 +171,7 @@ function DragList({ workspaceName }) {
 			workspaceName,
 		};
 		socket.emit("addTask", newTask, (t) => {
-			if (t.message === undefined) {
-				handleSocketAdd(t);
-			} else {
-				// TODO: Display error message.
-			}
+			handleAckMessage(t, handleSocketAdd);
 		});
 	}
 
@@ -201,7 +215,7 @@ function DragList({ workspaceName }) {
 			// TODO: Hacer Error callback para el socket delete.
 			// Con su respectivo Display error message.
 			socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
-				handleAckMessage(t, handleSocketAdd, null)
+				handleAckMessage(t, handleSocketAdd)
 			);
 		} else {
 			handleDelete(elementsCopy[item.board][elementIndex]);
@@ -383,6 +397,16 @@ function DragList({ workspaceName }) {
 					</Box>
 				</Toolbar>
 			</AppBar>
+			<Snackbar
+				open={errorNotif.open}
+				onClose={onCloseNotif}
+				autoHideDuration={3000}
+				anchorOrigin={{ vertical: "top", horizontal: "center" }}
+			>
+				<Alert onClose={onCloseNotif} severity="error">
+					{errorNotif.message}
+				</Alert>
+			</Snackbar>
 			<Box sx={{ marginTop: 10 }}>
 				<DragDropContextContainer sx={{ marginTop: 100 }}>
 					<DragDropContext onDragEnd={onDragEnd}>
