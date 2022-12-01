@@ -39,7 +39,7 @@ metadata:
   name: tp-iasc-front
   namespace: default
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: tp-iasc-front
@@ -60,7 +60,11 @@ spec:
             - containerPort: 3000
           env:
             - name: REACT_APP_BACKEND_URL
-              value: tp-iasc-back
+              value: http://tp-iasc-back
+            - name: REACT_APP_API_PORT
+              value: "8080"
+            - name: REACT_APP_SOCKET_PORT
+              value: "8081"
           imagePullPolicy: Always
 ---
 apiVersion: apps/v1
