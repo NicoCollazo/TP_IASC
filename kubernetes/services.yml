@@ -22,7 +22,7 @@ metadata:
     app: tp-iasc-back
     tier: backend
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: tp-iasc-back
   ports: 

@@ -14,16 +14,25 @@ const frontPort = process.env.FRONT_PORT || "3000";
 const baseURL = process.env.FRONT_SERVICE_URL || "http://localhost";
 const frontURL = `${baseURL}:${frontPort}`;
 
-// Api Configuration.
+const getAllLocalhostPorts = () => {
+    var origins = [];
+    for (var i = 0; i <= 65536; i++) {
+        origins.push(`http://127.0.0.1:${i.toString()}`)
+    }
+    return origins;
+}
+
+const origins = getAllLocalhostPorts()
+    // Api Configuration.
 app.set("json spaces", 4);
 app.use(express.json());
-app.use(cors({ origin: frontURL, credentials: true }));
+app.use(cors({ origin: origins, credentials: true }));
 app.listen(apiPort);
 
 // Socket Server
 const server = http.createServer(app);
 const io = new Server(server, {
-	cors: { origin: frontURL, credentials: true },
+    cors: { origin: origins, credentials: true },
 });
 server.listen(ioPort);
 
