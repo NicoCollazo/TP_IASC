@@ -25,12 +25,10 @@ spec:
             - containerPort: 8080
             - containerPort: 8081
           env:
-            - name: BASE_URL
-              value: tp-iasc-back
-            - name: FRONT_SERVICE
-              value: tp-iasc-front
+            - name: FRONT_SERVICE_URL
+              value: http://tp-iasc-front
             - name: STATEMANAGER_SERVICE_URL
-              value: tp-iasc-state-manager
+              value: http://tp-iasc-state-manager
           imagePullPolicy: Always
 ---
 apiVersion: apps/v1

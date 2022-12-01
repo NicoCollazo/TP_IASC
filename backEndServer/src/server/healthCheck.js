@@ -6,7 +6,7 @@ const { TaskManager, WorkspaceManager } = require("../models");
 const port = process.env.MONITORING_PORT || 8082;
 const serverName = process.env.SERVER_NAME || "SERVER_1";
 const performHealthCheck = process.env.HEALTHCHECK || false;
-const baseURL = process.env.BASE_URL || "http://localhost";
+const baseURL = process.env.MONITOR_URL || "http://localhost";
 const monitoringServiceURL = `${baseURL}:${port}`;
 
 const healthCheck = () => {
