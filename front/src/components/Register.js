@@ -46,9 +46,16 @@ export default function Register() {
 			.then((response) => {
 				if (response.data.userId !== undefined) {
 					// Log the user in.
-					return axios.post(AUTH_URL, registerValues, {
-						withCredentials: true,
-					});
+					return axios.post(
+						AUTH_URL,
+						{
+							username: registerValues.name,
+							password: registerValues.password,
+						},
+						{
+							withCredentials: true,
+						}
+					);
 				} else {
 					throw new Error("There was an issue with the user creation");
 				}

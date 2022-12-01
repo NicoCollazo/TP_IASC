@@ -29,7 +29,7 @@ class UsersController extends BaseController {
 				logger.error(err);
 				res
 					.status(400)
-					.json({ message: `${err}` })
+					.json({ error: `${err}` })
 					.end();
 			});
 	};

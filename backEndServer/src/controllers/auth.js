@@ -6,7 +6,7 @@ const authenticate = async (req, res) => {
 	// Validate the username exists.
 	const user = UserDb.findOne(req.body.username);
 	if (user === undefined) {
-		logger.error("Username doesn't exist in the DB");
+		logger.error(`Username ${req.body.username} doesn't exist in the DB`);
 		return res.status(400).json({
 			error: "Username or password is incorrect",
 		});
