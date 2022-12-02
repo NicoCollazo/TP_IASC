@@ -26,10 +26,11 @@ import WorkspaceButton from "./WorkspaceButton";
 import React from "react";
 const socket_url = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_SOCKET_PORT}`;
 
+const defaultWorkspace = { name: "", shared: [] };
 const Workspaces = () => {
 	const navigate = useNavigate();
 	const socket = useContext(SocketContext);
-	const [newWorkspace, setNewWorkspace] = useState("");
+	const [newWorkspace, setNewWorkspace] = useState(defaultWorkspace);
 	const [workspaceList, setWorkspaceList] = useState([]);
 	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
 	const [hover, setHover] = useState("none");
@@ -79,13 +80,17 @@ const Workspaces = () => {
 	};
 
 	const handleSubmit = () => {
-		setNewWorkspace("");
-		if (newWorkspace === "") {
+		if (newWorkspace.name === undefined || newWorkspace.name === "") {
+			setNewWorkspace(defaultWorkspace);
 			return;
 		}
 		socket.emit(
 			"addWorkspace",
-			{ name: newWorkspace, id: uuidv4() },
+			{
+				name: newWorkspace.name,
+				shared: newWorkspace.shared.split(","),
+				id: uuidv4(),
+			},
 			(nWorkspace) => {
 				if (
 					nWorkspace.message === undefined &&
@@ -99,10 +104,7 @@ const Workspaces = () => {
 				}
 			}
 		);
-	};
-
-	const handleChange = (event) => {
-		setNewWorkspace(event.target.value);
+		setNewWorkspace(defaultWorkspace);
 	};
 
 	function redirectToWorkspace (workspace) {
@@ -190,12 +192,37 @@ const Workspaces = () => {
 								margin="normal"
 								required
 								fullWidth
-								value={newWorkspace}
-								onChange={handleChange}
+								onChange={(e) =>
+									setNewWorkspace((prevWorkspace) => {
+										return {
+											...prevWorkspace,
+											name: e.target.value,
+										};
+									})
+								}
+								value={newWorkspace.name || ""}
 								name="newWorkspace"
 								label="Workspace"
 								type="text"
 								id="newWorkspace"
+							/>
+							<TextField
+								margin="normal"
+								required
+								fullWidth
+								onChange={(e) =>
+									setNewWorkspace((prevWorkspace) => {
+										return {
+											...prevWorkspace,
+											shared: e.target.value,
+										};
+									})
+								}
+								value={newWorkspace.shared || ""}
+								name="shareWorkspace"
+								label="Share with"
+								type="text"
+								id="shareWorkspace"
 							/>
 							<Button
 								onClick={handleSubmit}

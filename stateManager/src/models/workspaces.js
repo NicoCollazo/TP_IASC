@@ -19,12 +19,12 @@ class WorkspaceManager {
 		this._workspaces = workspaceList;
 	};
 
-	add = async (username, { name, id }) => {
+	add = async (username, workspaceData) => {
 		const workspace = {
-			id,
-			name,
+			id: workspaceData.id,
+			name: workspaceData.name,
 			owner: username,
-			shared: [],
+			shared: workspaceData.shared || [],
 		};
 		this._workspaces.push(workspace);
 		return workspace;
