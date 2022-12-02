@@ -10,8 +10,6 @@ import {
 	Container,
 	createTheme,
 	ThemeProvider,
-	Snackbar,
-	Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { LockOutlined as LockOutlinedIcon } from "@mui/icons-material";
@@ -66,16 +64,11 @@ export default function Auth() {
 		<ThemeProvider theme={theme}>
 			<Container component="main" maxWidth="xs">
 				<CssBaseline />
-				<Snackbar
-					open={errorNotif.open}
+				<Notification
+					notificationState={errorNotif}
 					onClose={onCloseNotif}
-					autoHideDuration={3000}
-					anchorOrigin={{ vertical: "top", horizontal: "center" }}
-				>
-					<Alert onClose={onCloseNotif} severity="error">
-						{errorNotif.message}
-					</Alert>
-				</Snackbar>
+					severity="error"
+				/>
 				<Box
 					sx={{
 						marginTop: 8,

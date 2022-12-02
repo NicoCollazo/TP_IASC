@@ -1,12 +1,10 @@
 import {
 	Box,
 	Chip,
-	Alert,
 	Button,
 	AppBar,
 	Toolbar,
 	Divider,
-	Snackbar,
 	TextField,
 	Container,
 	Typography,
@@ -199,8 +197,6 @@ function DragList({ workspaceName }) {
 	}
 
 	function handleDelete(item) {
-		// TODO: Hacer Error callback para el socket delete.
-		// Con su respectivo Display error message.
 		socket.emit("deleteTask", item, (t) =>
 			handleAckMessage(t, handleSocketDelete)
 		);
@@ -213,8 +209,6 @@ function DragList({ workspaceName }) {
 		);
 		if (elementsCopy[item.board][elementIndex].title !== "") {
 			elementsCopy[item.board][elementIndex].editing = editing;
-			// TODO: Hacer Error callback para el socket delete.
-			// Con su respectivo Display error message.
 			socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
 				handleAckMessage(t, handleSocketAdd)
 			);
@@ -255,7 +249,7 @@ function DragList({ workspaceName }) {
 		) {
 			return;
 		}
-		
+
 		setDrawer({ open: open, title: "", content: "" });
 	};
 
@@ -397,16 +391,11 @@ function DragList({ workspaceName }) {
 					</Box>
 				</Toolbar>
 			</AppBar>
-			<Snackbar
-				open={errorNotif.open}
+			<Notification
+				notificationState={errorNotif}
 				onClose={onCloseNotif}
-				autoHideDuration={3000}
-				anchorOrigin={{ vertical: "top", horizontal: "center" }}
-			>
-				<Alert onClose={onCloseNotif} severity="error">
-					{errorNotif.message}
-				</Alert>
-			</Snackbar>
+				severity="error"
+			/>
 			<Box sx={{ marginTop: 10 }}>
 				<DragDropContextContainer sx={{ marginTop: 100 }}>
 					<DragDropContext onDragEnd={onDragEnd}>

@@ -6,23 +6,18 @@ import {
 	Box,
 	Card,
 	Grid,
-	Alert,
 	Button,
 	AppBar,
 	Toolbar,
-	Snackbar,
 	Container,
 	TextField,
 	Typography,
 	CardHeader,
 	CardContent,
-	IconButton,
-	ButtonGroup,
-	Tooltip,
 } from "@mui/material";
-import { IoTrashOutline, TiPencil } from "react-icons/all";
-import { SocketContext } from "../context/socket";
 import WorkspaceButton from "./WorkspaceButton";
+import Notification from "./Notification";
+import { SocketContext } from "../context/socket";
 import React from "react";
 const socket_url = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_SOCKET_PORT}`;
 
@@ -136,7 +131,6 @@ const Workspaces = () => {
 		});
 	}
 
-	// TODO: Add buttons to delete a workspace (maybe how we handle task deletion?)
 	return (
 		<Container maxWidth="lg">
 			<AppBar position="fixed" sx={{ backgroundColor: "#478ea1" }}>
@@ -144,16 +138,11 @@ const Workspaces = () => {
 					<Typography variant="h6">TODO APP</Typography>
 				</Toolbar>
 			</AppBar>
-			<Snackbar
-				open={errorNotif.open}
+			<Notification
+				notificationState={errorNotif}
 				onClose={onCloseNotif}
-				autoHideDuration={3000}
-				anchorOrigin={{ vertical: "top", horizontal: "center" }}
-			>
-				<Alert onClose={onCloseNotif} severity="error">
-					{errorNotif.message}
-				</Alert>
-			</Snackbar>
+				severity="error"
+			/>
 			<Box sx={{ margin: 4, paddingTop: 4 }}>
 				<Card sx={{ marginTop: 4 }}>
 					<CardHeader
