@@ -16,9 +16,14 @@ import {
 	Typography,
 	CardHeader,
 	CardContent,
+	IconButton,
+	ButtonGroup,
+	Tooltip,
 } from "@mui/material";
-
+import { IoTrashOutline, TiPencil } from "react-icons/all";
 import { SocketContext } from "../context/socket";
+import WorkspaceButton from "./WorkspaceButton";
+import React from "react";
 const socket_url = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_SOCKET_PORT}`;
 
 const Workspaces = () => {
@@ -27,7 +32,8 @@ const Workspaces = () => {
 	const [newWorkspace, setNewWorkspace] = useState("");
 	const [workspaceList, setWorkspaceList] = useState([]);
 	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
-
+	const [hover, setHover] = useState("none");
+	
 	// Load the list of previously created workspaces once during the first rendering
 	useEffect(() => {
 		// Force Reconnect to validate the auth_token.
@@ -99,6 +105,21 @@ const Workspaces = () => {
 		setNewWorkspace(event.target.value);
 	};
 
+	function redirectToWorkspace (workspace) {
+		navigate("/workspace/" + workspace);
+	}
+
+	function handleEdit(editedWorkspace){
+		
+	}
+
+	function handleDelete(workspace){
+		setWorkspaceList((current) =>
+			current.filter((w) => w.id !== workspace.id)
+		);
+	}
+
+
 	// TODO: Add buttons to delete a workspace (maybe how we handle task deletion?)
 	return (
 		<Container maxWidth="lg">
@@ -140,16 +161,12 @@ const Workspaces = () => {
 						>
 							<Grid container spacing={0}>
 								{workspaceList.map((w, idx) => (
-									<Grid key={`${w.name}__${idx}`} item>
-										<Button
-											component={Link}
-											to={"/workspace/" + w.name}
-											sx={{ mr: 1, mt: 1 }}
-											variant="outlined"
-										>
-											{w.name}
-										</Button>
-									</Grid>
+									<WorkspaceButton 
+										item={w} 
+										handleEdit={handleEdit}
+										handleDelete={handleDelete}
+										redirectToWorkspace={redirectToWorkspace}
+									/>
 								))}
 							</Grid>
 						</Box>

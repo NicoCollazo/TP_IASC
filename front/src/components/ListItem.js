@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Draggable } from "react-beautiful-dnd";
 import React, { useState } from "react";
 import Card from "@mui/material/Card";
@@ -12,6 +13,7 @@ import Box from "@mui/material/Box";
 import { IoTrashOutline, TiPencil } from "react-icons/all";
 import Tooltip from "@mui/material/Tooltip";
 import Divider from "@mui/material/Divider";
+import ActionButtons from "./ActionButtons";
 
 const ListItem = ({
 	item,
@@ -75,75 +77,7 @@ const ListItem = ({
 					>
 						{item.title}
 					</Typography>
-					<Box>
-						<ButtonGroup
-							variant="contained"
-							aria-label="outlined primary button group"
-							sx={{
-								position: "absolute",
-								top: "20%",
-								right: 8,
-								display: hover,
-							}}
-						>
-							<Tooltip
-								title="Edit"
-								placement="top"
-								componentsProps={{
-									tooltip: {
-										sx: {
-											p: 1,
-											bgcolor: "common.black",
-											"& .MuiTooltip-arrow": {
-												color: "common.black",
-											},
-										},
-									},
-								}}
-							>
-								<IconButton
-									onClick={() => handleEdit(item, true)}
-									size="small"
-									aria-label="edit"
-									key="editButton"
-									sx={{
-										color: "rgb(136 136 136)",
-										borderRadius: 0,
-									}}
-								>
-									<TiPencil />
-								</IconButton>
-							</Tooltip>
-							<Tooltip
-								title="Delete"
-								placement="top"
-								componentsProps={{
-									tooltip: {
-										sx: {
-											p: 1,
-											bgcolor: "common.black",
-											"& .MuiTooltip-arrow": {
-												color: "common.black",
-											},
-										},
-									},
-								}}
-							>
-								<IconButton
-									onClick={() => handleDelete(item)}
-									aria-label="delete"
-									size="small"
-									key="trashButton"
-									sx={{
-										color: "rgb(136 136 136)",
-										borderRadius: 0,
-									}}
-								>
-									<IoTrashOutline />
-								</IconButton>
-							</Tooltip>
-						</ButtonGroup>
-					</Box>
+					<ActionButtons item={item} handleEdit={handleEdit} handleDelete={handleDelete} hover={hover}/>
 				</Container>
 			);
 		}

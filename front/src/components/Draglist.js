@@ -25,6 +25,7 @@ import {
 } from "react-icons/all";
 import { SocketContext } from "../context/socket";
 import DraggableElement from "./DraggableElement";
+import React from "react";
 
 const DragDropContextContainer = styled.div`
 	padding: 20px;
@@ -254,8 +255,7 @@ function DragList({ workspaceName }) {
 		) {
 			return;
 		}
-		console.log(item);
-		console.log("ok");
+		
 		setDrawer({ open: open, title: "", content: "" });
 	};
 
