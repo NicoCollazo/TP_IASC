@@ -41,6 +41,10 @@ class WorkspacesController extends BaseController {
 			.then((workspace) => {
 				WorkspaceManager.add(socket.user.username, workspace).then((w) => {
 					socket.to(socket.user.username).emit("newWorkspace", w);
+					// Emit this workspace to all users that it is "shared" to.
+					for (const u of workspace.shared) {
+						socket.to(u).emit("newWorkspace", w);
+					}
 					ack(w);
 				});
 			})
