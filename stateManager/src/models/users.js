@@ -63,4 +63,6 @@ class UsersDb {
 	};
 }
 
-module.exports = UsersDb;
+const usersDb = new UsersDb();
+
+module.exports = usersDb;

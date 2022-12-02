@@ -26,7 +26,6 @@ class UsersController extends BaseController {
 				})
 			)
 			.catch((err) => {
-				logger.error(err);
 				res
 					.status(400)
 					.json({ error: `${err}` })

@@ -49,7 +49,6 @@ class WorkspacesController extends BaseController {
 				});
 			})
 			.catch((err) => {
-				logger.error(err);
 				ack({ error: err });
 			});
 	};
@@ -75,7 +74,6 @@ class WorkspacesController extends BaseController {
 				});
 			})
 			.catch((err) => {
-				logger.error(err);
 				ack({ error: err });
 			});
 	};

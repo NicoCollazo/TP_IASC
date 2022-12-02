@@ -9,7 +9,7 @@ class TasksController extends BaseController {
 		this._promiseEmitWithTimeout(
 			stateManagerSocket.emit.bind(stateManagerSocket),
 			"attemptToAddTask",
-			{ task, workspace }
+			{ task: { ...task, owner: socket.user.username }, workspace }
 		)
 			.then((acceptedTask) => {
 				TaskManager.add(acceptedTask).then((t) => {
@@ -19,7 +19,6 @@ class TasksController extends BaseController {
 				});
 			})
 			.catch((err) => {
-				logger.error(err);
 				ack({ error: err });
 			});
 	};
@@ -40,7 +39,6 @@ class TasksController extends BaseController {
 				});
 			})
 			.catch((err) => {
-				logger.error(err);
 				ack({ error: err });
 			});
 	};
@@ -62,7 +60,6 @@ class TasksController extends BaseController {
 				});
 			})
 			.catch((err) => {
-				logger.error(err);
 				ack({ error: err });
 			});
 	};

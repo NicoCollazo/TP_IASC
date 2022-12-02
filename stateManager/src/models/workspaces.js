@@ -15,8 +15,8 @@ class WorkspaceManager {
 		this._workspaces = workspaces || [];
 	}
 
-	set = (workspaceList) => {
-		this._workspaces = workspaceList;
+	set = (workspaces) => {
+		this._workspaces = workspaces;
 	};
 
 	add = async (username, workspaceData) => {
@@ -58,4 +58,6 @@ class WorkspaceManager {
 	};
 }
 
-module.exports = WorkspaceManager;
+const workspaceManager = new WorkspaceManager();
+
+module.exports = workspaceManager;

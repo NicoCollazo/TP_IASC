@@ -47,10 +47,9 @@ const test_tasks = [
 	},
 ];
 
-const usersDb = new UsersDb();
-usersDb.register("Ramiro", "password");
-const tasksManagerInstance = new TaskManager(test_tasks);
-const workspaceManagerInstance = new WorkspaceManager(test_workspaces);
+TaskManager.set(test_tasks);
+WorkspaceManager.set(test_workspaces);
+UsersDb.register("Ramiro", "password");
 /* ----------------------- */
 
 setInterval(() => {
@@ -74,12 +73,26 @@ io.on("connection", (socket) => {
 		if (!activeServers.some((s) => s.name === serverName)) {
 			activeServers.push({ name: serverName, socket });
 
+			//TODO: Check how we can produce a MERGE of state when a
+			// new server connects.
+			// Example:
+			/* 
+				mergeState(serverState, WorkspaceManager, TaskManager, UsersDb);
+				socket.broadcast.emit(
+					"updateStatus", 
+					WorkspaceManager.getAll(),
+					TaskManager.getAll(),
+					UsersDb.getAll()
+				);
+				ack(
+					WorkspaceManager.getAll(),
+					TaskManager.getAll(),
+					UsersDb.getAll()
+				);
+			*/
+
 			// Publish state to newly connected server.
-			ack(
-				workspaceManagerInstance.getAll(),
-				tasksManagerInstance.getAll(),
-				usersDb.getAll()
-			);
+			ack(WorkspaceManager.getAll(), TaskManager.getAll(), UsersDb.getAll());
 		}
 	});
 
@@ -99,8 +112,7 @@ io.on("connection", (socket) => {
 					return;
 				}
 
-				usersDb
-					.register(data.username, data.password)
+				UsersDb.register(data.username, data.password)
 					.then((_) => {
 						socket.broadcast.emit("commitAddUser", data);
 						ack(data);
@@ -130,10 +142,9 @@ io.on("connection", (socket) => {
 					return;
 				}
 
-				workspaceManagerInstance
-					.add(data.username, data.workspace)
+				WorkspaceManager.add(data.username, data.workspace)
 					.then((w) => {
-						socket.broadcast.emit("commitAddWorkspace", data);
+						socket.broadcast.emit("commitAddWorkspace", w);
 						ack(w);
 					})
 					.catch((err) => {
@@ -161,8 +172,7 @@ io.on("connection", (socket) => {
 					return;
 				}
 
-				tasksManagerInstance
-					.add({ ...data.task, owner: data.workspace.owner })
+				TaskManager.add(data.task)
 					.then((task) => {
 						socket.broadcast.emit("commitAddTask", {
 							task,
@@ -195,8 +205,7 @@ io.on("connection", (socket) => {
 					return;
 				}
 
-				tasksManagerInstance
-					.edit(data.task)
+				TaskManager.edit(data.task)
 					.then((task) => {
 						socket.broadcast.emit("commitEditTask", {
 							task,
@@ -229,8 +238,7 @@ io.on("connection", (socket) => {
 					return;
 				}
 
-				workspaceManagerInstance
-					.delete(data.workspace)
+				WorkspaceManager.delete(data.workspace)
 					.then((w) => {
 						socket.broadcast.emit("commitDeleteWorkspace", {
 							username: data.username,
@@ -263,8 +271,7 @@ io.on("connection", (socket) => {
 					return;
 				}
 
-				tasksManagerInstance
-					.delete(data.task)
+				TaskManager.delete(data.task)
 					.then(() => {
 						socket.broadcast.emit("commitDeleteTask", {
 							task: data.task,

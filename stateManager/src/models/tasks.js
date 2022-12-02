@@ -15,7 +15,7 @@ const logger = require("../utils/logger")(__filename);
 class TaskManager {
 	constructor(tasks) {
 		// To locally hold the list of all created tasks
-		this._tasks = [...tasks] || [];
+		this._tasks = tasks || [];
 	}
 
 	// Add a new task to the list
@@ -31,6 +31,10 @@ class TaskManager {
 		);
 		logger.info(JSON.stringify(allTasks));
 		return allTasks;
+	};
+
+	set = (tasks) => {
+		this._tasks = tasks;
 	};
 
 	getTaskIndex = (taskId) => {
@@ -73,4 +77,6 @@ class TaskManager {
 	};
 }
 
-module.exports = TaskManager;
+const taskManager = new TaskManager();
+
+module.exports = taskManager;
