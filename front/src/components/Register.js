@@ -11,6 +11,7 @@ import {
 	createTheme,
 	ThemeProvider,
 } from "@mui/material";
+import Notification from "./Notification";
 import { useNavigate } from "react-router-dom";
 import { LockOutlined as LockOutlinedIcon } from "@mui/icons-material";
 

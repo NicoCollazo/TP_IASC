@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 import styled from "styled-components";
+import Notification from "./Notification";
 import { useNavigate, Link } from "react-router-dom";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useState, useEffect, useContext } from "react";
