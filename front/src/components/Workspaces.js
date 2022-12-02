@@ -26,7 +26,7 @@ import WorkspaceButton from "./WorkspaceButton";
 import React from "react";
 const socket_url = `${process.env.REACT_APP_BACKEND_URL}:${process.env.REACT_APP_SOCKET_PORT}`;
 
-const defaultWorkspace = { name: "", shared: [] };
+const defaultWorkspace = { name: "", shared: "" };
 const Workspaces = () => {
 	const navigate = useNavigate();
 	const socket = useContext(SocketContext);
@@ -34,7 +34,7 @@ const Workspaces = () => {
 	const [workspaceList, setWorkspaceList] = useState([]);
 	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
 	const [hover, setHover] = useState("none");
-	
+
 	// Load the list of previously created workspaces once during the first rendering
 	useEffect(() => {
 		// Force Reconnect to validate the auth_token.
@@ -58,7 +58,7 @@ const Workspaces = () => {
 
 	// Keep listening for New Workspaces that might be created by other users in the organization
 	useEffect(() => {
-		const newWorkspacepListener = (workspace) => {
+		const newWorkspaceListener = (workspace) => {
 			setWorkspaceList((oldList) => [...oldList, workspace]);
 		};
 		const deleteWorkspaceListener = (workspace) => {
@@ -68,9 +68,9 @@ const Workspaces = () => {
 		};
 
 		socket.on("deleteWorkspace", deleteWorkspaceListener);
-		socket.on("newWorkspace", newWorkspacepListener);
+		socket.on("newWorkspace", newWorkspaceListener);
 		return () => {
-			socket.off("newWorkspace", newWorkspacepListener);
+			socket.off("newWorkspace", newWorkspaceListener);
 			socket.off("deleteWorkspace", deleteWorkspaceListener);
 		};
 	});
@@ -84,11 +84,17 @@ const Workspaces = () => {
 			setNewWorkspace(defaultWorkspace);
 			return;
 		}
+
+		let sharedWith = [];
+		if (newWorkspace.shared !== "") {
+			sharedWith = newWorkspace.shared.split(",");
+		}
+
 		socket.emit(
 			"addWorkspace",
 			{
 				name: newWorkspace.name,
-				shared: newWorkspace.shared.split(","),
+				shared: sharedWith,
 				id: uuidv4(),
 			},
 			(nWorkspace) => {
@@ -107,20 +113,28 @@ const Workspaces = () => {
 		setNewWorkspace(defaultWorkspace);
 	};
 
-	function redirectToWorkspace (workspace) {
+	function redirectToWorkspace(workspace) {
 		navigate("/workspace/" + workspace);
 	}
 
-	function handleEdit(editedWorkspace){
-		
-	}
+	function handleEdit(editedWorkspace) {}
 
-	function handleDelete(workspace){
-		setWorkspaceList((current) =>
-			current.filter((w) => w.id !== workspace.id)
-		);
+	function handleDelete(workspace) {
+		socket.emit("deleteWorkspace", workspace, (deletedWorkspace) => {
+			if (
+				deletedWorkspace.message === undefined &&
+				deletedWorkspace.error === undefined
+			) {
+				setWorkspaceList((current) =>
+					current.filter((w) => w.id !== workspace.id)
+				);
+			} else {
+				const errMsg = deletedWorkspace.message || deletedWorkspace.error;
+				console.log(errMsg);
+				setErrorNotif({ open: true, message: errMsg });
+			}
+		});
 	}
-
 
 	// TODO: Add buttons to delete a workspace (maybe how we handle task deletion?)
 	return (
@@ -163,8 +177,8 @@ const Workspaces = () => {
 						>
 							<Grid container spacing={0}>
 								{workspaceList.map((w, idx) => (
-									<WorkspaceButton 
-										item={w} 
+									<WorkspaceButton
+										item={w}
 										handleEdit={handleEdit}
 										handleDelete={handleDelete}
 										redirectToWorkspace={redirectToWorkspace}

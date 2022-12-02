@@ -53,7 +53,9 @@ class WorkspaceManager {
 		return workspace;
 	};
 
-	canAdd = (wName) => !this.getByName(wName);
+	canAdd = (workspace) => !this.getByName(workspace.name);
+
+	canDelete = (workspace) => this.getByName(workspace.name) !== undefined;
 
 	getAll = () => {
 		return this._workspaces;

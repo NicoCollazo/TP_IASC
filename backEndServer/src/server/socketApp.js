@@ -42,7 +42,13 @@ const initApp = (io, expressApp) => {
 		});
 
 		socket.on("deleteWorkspace", (workspace, ack) => {
-			workspacesController.deleteWorkspace(socket, workspace, ack);
+			workspacesController.deleteWorkspace(
+				socket,
+				stateManagerSocket,
+				io,
+				workspace,
+				ack
+			);
 		});
 
 		socket.on("addTask", (task, ack) =>

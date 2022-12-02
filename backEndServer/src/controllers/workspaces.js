@@ -54,7 +54,7 @@ class WorkspacesController extends BaseController {
 			});
 	};
 
-	deleteWorkspace = (socket, workspace, ack) => {
+	deleteWorkspace = (socket, stateManagerSocket, ioServer, workspace, ack) => {
 		logger.info(
 			`User ${
 				socket.user.username

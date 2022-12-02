@@ -215,7 +215,7 @@ io.on("connection", (socket) => {
 	socket.on("attemptToDeleteWorkspace", (data, ack) => {
 		io.timeout(attemptTimeouts).emit(
 			"checkDeleteWorkspace",
-			data,
+			data.workspace,
 			(err, responses) => {
 				if (err || !responsesAreTrue(responses)) {
 					const message = "Attempt to Delete workspace failed";
