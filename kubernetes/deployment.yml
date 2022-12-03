@@ -4,7 +4,7 @@ metadata:
   name: tp-iasc-back
   namespace: default
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: tp-iasc-back
@@ -25,10 +25,24 @@ spec:
             - containerPort: 8080
             - containerPort: 8081
           env:
+            - name: SERVER_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: FRONT_SERVICE_URL
               value: http://127.0.0.1
             - name: STATEMANAGER_SERVICE_URL
               value: http://tp-iasc-state-manager
+            - name: TOKEN_SECRET
+              value: pescado
+            - name: TOKEN_TTL
+              value: 20000s
+            - name: HEALTHCHECK
+              value: "true"
+            - name: FRONT_PORT
+              value: "3000"
+            - name: STATEMANAGER_PORT
+              value: "8090" 
           imagePullPolicy: Always
 ---
 apiVersion: apps/v1
@@ -71,7 +85,7 @@ metadata:
   name: tp-iasc-state-manager
   namespace: default
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: tp-iasc-state-manager
@@ -90,4 +104,9 @@ spec:
           image: nicocollazo/tp-iasc-state-manager
           ports:
             - containerPort: 8090
+          env:
+            - name: PORT
+              value: "8090"
+            - name: SOCKET_ATTEMPT_TIMEOUTS
+              value: "3000"
           imagePullPolicy: Always
