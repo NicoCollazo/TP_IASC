@@ -6,7 +6,7 @@ import Box from "@mui/material/Box";
 import ActionButtons from "./ActionButtons";
 import { Card, CardContent } from "@mui/material";
 
-function WorkspaceButton({ item, handleEdit, handleDelete, redirectToWorkspace }) {
+function WorkspaceButton({ item, handleDelete, redirectToWorkspace }) {
     const [hover, setHover] = useState("none");
 
 	return (
@@ -54,7 +54,6 @@ function WorkspaceButton({ item, handleEdit, handleDelete, redirectToWorkspace }
                         </Typography>
                         <ActionButtons 
                             item={item} 
-                            handleEdit={handleEdit} 
                             handleDelete={handleDelete} 
                             hover={hover}
                         />

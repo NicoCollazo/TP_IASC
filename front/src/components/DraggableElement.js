@@ -6,7 +6,7 @@ import Chip from '@mui/material/Chip';
 import {Button, Container} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 
-const DraggableElement = ({ prefix, elements, handleAdd, handleChangeItemTitle, handleEdit, handleDelete, toggleDrawer }) => (
+const DraggableElement = ({ prefix, elements, handleAdd, handleChangeItemTitle, handleEdit, handleDelete, handleCheck, toggleDrawer }) => (
   <React.Fragment>
     <Container sx={{ padding: '10px', borderRadius: '6px'}}>
       <Chip 
@@ -35,6 +35,7 @@ const DraggableElement = ({ prefix, elements, handleAdd, handleChangeItemTitle, 
                   handleChangeItemTitle={handleChangeItemTitle} 
                   handleEdit={handleEdit}
                   handleDelete={handleDelete}
+                  handleCheck={handleCheck}
                   toggleDrawer={toggleDrawer}
                   />
               ))}

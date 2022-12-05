@@ -14,6 +14,7 @@ import { IoTrashOutline, TiPencil } from "react-icons/all";
 import Tooltip from "@mui/material/Tooltip";
 import Divider from "@mui/material/Divider";
 import ActionButtons from "./ActionButtons";
+import EditableElement from "./EditableElement";
 
 const ListItem = ({
 	item,
@@ -21,6 +22,7 @@ const ListItem = ({
 	handleChangeItemTitle,
 	handleEdit,
 	handleDelete,
+	handleCheck,
 	toggleDrawer,
 }) => {
 	const [hover, setHover] = useState("none");
@@ -29,57 +31,6 @@ const ListItem = ({
 		//13 -> Enter
 		if (e.keyCode == 13) {
 			handleEdit(item, false);
-		}
-	};
-
-	const renderTitle = (item) => {
-		if (item.editing) {
-			return (
-				<Container sx={{ paddingLeft: "0px !important" }}>
-					<TextField
-						hiddenLabel
-						id="filled-hidden-label-small"
-						value={item.title}
-						onChange={(e) => handleChangeItemTitle(e, item)}
-						onBlur={() => handleEdit(item, false)}
-						onKeyDown={(e) => handleKeyPress(e, item)}
-						size="small"
-						fullWidth
-						autoFocus
-						variant="standard"
-						InputProps={{
-							disableUnderline: true,
-							style: { fontWeight: "bold" },
-						}}
-						sx={{
-							paddingTop: "7.5px",
-							paddingBottom: "3.5px",
-							paddingX: "14px",
-						}}
-					/>
-				</Container>
-			);
-		} else {
-			return (
-				<Container
-					sx={{
-						paddingLeft: "0px !important",
-						position: "relative",
-						"&:hover": {
-							backgroundColor: "#f9f8f9",
-							boxShadow: "none",
-						},
-					}}
-				>
-					<Typography
-						sx={{ padding: "8.5px 14px", fontWeight: "bold" }}
-						onClick={() => toggleDrawer(true, item)}
-					>
-						{item.title}
-					</Typography>
-					<ActionButtons item={item} handleEdit={handleEdit} handleDelete={handleDelete} hover={hover}/>
-				</Container>
-			);
 		}
 	};
 
@@ -117,7 +68,16 @@ const ListItem = ({
 									minHeight: 42,
 								}}
 							>
-								{renderTitle(item)}
+								<EditableElement
+									item={item} 
+									handleChangeItemTitle={handleChangeItemTitle}
+									handleEdit={handleEdit}
+									handleDelete={handleDelete}
+									handleKeyPress={handleKeyPress}
+									handleCheck={handleCheck}
+									toggleDrawer={toggleDrawer}
+									hover={hover}	
+								/>
 							</CardHeader>
 							<Divider />
 							<CardContent

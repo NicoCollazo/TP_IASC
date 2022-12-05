@@ -7,11 +7,19 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 import Box from "@mui/material/Box";
 import { IoTrashOutline, TiPencil } from "react-icons/all";
 import Tooltip from "@mui/material/Tooltip";
+import ActionButtons from "./ActionButtons";
 
-function EditableElement({ item, handleChangeItemTitle, handleEdit, handleDelete, handleKeyPress, toggleDrawer, hover }) {
+function EditableElement({ item, handleChangeItemTitle, handleEdit, handleDelete, handleCheck, handleKeyPress, toggleDrawer, hover }) {
+
+    const textStyle = () => {
+        if (!item.done) {
+            return (
+                {textDecoration: "line-through"}
+            )
+        }
+    }
 
     const renderEditableElement = (item) => {
-        console.log(item)
         if (item.editing) {
             return (
                 <Container sx={{ paddingLeft: "0px !important" }}>
@@ -28,7 +36,11 @@ function EditableElement({ item, handleChangeItemTitle, handleEdit, handleDelete
                         variant="standard"
                         InputProps={{
                             disableUnderline: true,
-                            style: { fontWeight: "bold" },
+                            style: { 
+                                fontWeight: "bold",
+                                textDecoration: item.done ? "line-through" : "",
+                                color: item.done ? "grey" : "",
+                            },
                         }}
                         sx={{
                             paddingTop: "7.5px",
@@ -51,79 +63,24 @@ function EditableElement({ item, handleChangeItemTitle, handleEdit, handleDelete
                     }}
                 >
                     <Typography
-                        sx={{ padding: "8.5px 14px", fontWeight: "bold" }}
+                        sx={{ 
+                            padding: "8.5px 14px",
+                            fontWeight: "bold",
+                            textDecoration: item.done ? "line-through" : "",
+                            color: item.done ? "grey" : "",
+                        }}
                         onClick={() => toggleDrawer(true, item)}
                     >
                         {item.title}
                     </Typography>
                     <Box>
-                        <ButtonGroup
-                            variant="contained"
-                            aria-label="outlined primary button group"
-                            sx={{
-                                position: "absolute",
-                                top: "20%",
-                                right: 8,
-                                display: hover,
-                            }}
-                        >
-                            <Tooltip
-                                title="Edit"
-                                placement="top"
-                                componentsProps={{
-                                    tooltip: {
-                                        sx: {
-                                            p: 1,
-                                            bgcolor: "common.black",
-                                            "& .MuiTooltip-arrow": {
-                                                color: "common.black",
-                                            },
-                                        },
-                                    },
-                                }}
-                            >
-                                <IconButton
-                                    onClick={() => handleEdit(item, true)}
-                                    size="small"
-                                    aria-label="edit"
-                                    key="editButton"
-                                    sx={{
-                                        color: "rgb(136 136 136)",
-                                        borderRadius: 0,
-                                    }}
-                                >
-                                    <TiPencil />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip
-                                title="Delete"
-                                placement="top"
-                                componentsProps={{
-                                    tooltip: {
-                                        sx: {
-                                            p: 1,
-                                            bgcolor: "common.black",
-                                            "& .MuiTooltip-arrow": {
-                                                color: "common.black",
-                                            },
-                                        },
-                                    },
-                                }}
-                            >
-                                <IconButton
-                                    onClick={() => handleDelete(item)}
-                                    aria-label="delete"
-                                    size="small"
-                                    key="trashButton"
-                                    sx={{
-                                        color: "rgb(136 136 136)",
-                                        borderRadius: 0,
-                                    }}
-                                >
-                                    <IoTrashOutline />
-                                </IconButton>
-                            </Tooltip>
-                        </ButtonGroup>
+                    <ActionButtons 
+                        item={item}
+                        handleEdit={handleEdit}
+                        handleDelete={handleDelete}
+                        handleCheck={handleCheck}
+                        hover={hover}
+                    />
                     </Box>
                 </Container>
             );

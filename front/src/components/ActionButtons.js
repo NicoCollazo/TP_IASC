@@ -5,10 +5,10 @@ import Container from "@mui/material/Container";
 import IconButton from "@mui/material/IconButton";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import Box from "@mui/material/Box";
-import { IoTrashOutline, TiPencil } from "react-icons/all";
+import { IoTrashOutline, TiPencil, BsCheck2Circle } from "react-icons/all";
 import Tooltip from "@mui/material/Tooltip";
 
-function ActionButtons({ item, handleEdit, handleDelete, hover }) {
+function ActionButtons({ item, handleEdit, handleDelete, handleCheck, hover }) {
 	return (
         <Box>
             <ButtonGroup
@@ -44,6 +44,7 @@ function ActionButtons({ item, handleEdit, handleDelete, hover }) {
                         sx={{
                             color: "rgb(136 136 136)",
                             borderRadius: 0,
+                            display: handleEdit? "" : "none"
                         }}
                     >
                         <TiPencil />
@@ -72,9 +73,39 @@ function ActionButtons({ item, handleEdit, handleDelete, hover }) {
                         sx={{
                             color: "rgb(136 136 136)",
                             borderRadius: 0,
+                            display: handleDelete? "" : "none"
                         }}
                     >
                         <IoTrashOutline />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip
+                    title="Mark as completedx"
+                    placement="top"
+                    componentsProps={{
+                        tooltip: {
+                            sx: {
+                                p: 1,
+                                bgcolor: "common.black",
+                                "& .MuiTooltip-arrow": {
+                                    color: "common.black",
+                                },
+                            },
+                        },
+                    }}
+                >
+                    <IconButton
+                        onClick={() => handleCheck(item)}
+                        aria-label="check"
+                        size="small"
+                        key="checkButton"
+                        sx={{
+                            color: "rgb(136 136 136)",
+                            borderRadius: 0,
+                            display: handleCheck? "" : "none"
+                        }}
+                    >
+                        <BsCheck2Circle />
                     </IconButton>
                 </Tooltip>
             </ButtonGroup>

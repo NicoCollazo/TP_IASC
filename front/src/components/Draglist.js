@@ -168,6 +168,7 @@ function DragList({ workspaceName }) {
 			title: ``,
 			content: ``,
 			editing: true,
+			done: false,
 			workspaceName,
 		};
 		socket.emit("addTask", newTask, (t) => {
@@ -200,6 +201,17 @@ function DragList({ workspaceName }) {
 	function handleDelete(item) {
 		socket.emit("deleteTask", item, (t) =>
 			handleAckMessage(t, handleSocketDelete)
+		);
+	}
+
+	function handleCheck(item) {
+		const elementsCopy = { ...elements };
+		let elementIndex = elementsCopy[item.board].findIndex(
+			(i) => i.id === item.id
+		);
+		elementsCopy[item.board][elementIndex].done = !elementsCopy[item.board][elementIndex].done;
+		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
+			handleAckMessage(t, handleSocketEdit)
 		);
 	}
 
@@ -410,6 +422,7 @@ function DragList({ workspaceName }) {
 									handleChangeItemTitle={handleChangeItemTitle}
 									handleEdit={handleEdit}
 									handleDelete={handleDelete}
+									handleCheck={handleCheck}
 									toggleDrawer={toggleOk}
 								/>
 							))}
