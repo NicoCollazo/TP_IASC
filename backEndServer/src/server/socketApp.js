@@ -3,7 +3,7 @@ const { Router } = require("express");
 const { UserDb } = require("../models");
 const { authRouter, usersRouter } = require("../routers");
 const logger = require("../utils/logger")(__filename);
-const { verifyTokenSocket } = require("../middlewares");
+const { checkUserIdInCookies } = require("../middlewares");
 const initStateManagerSocketApp = require("./stateManagerApp");
 const { WorkspacesController, TasksController } = require("../controllers");
 
@@ -19,7 +19,7 @@ const initApp = (io, expressApp) => {
 	usersRouter(router, stateManagerSocket);
 	expressApp.use("/api", router);
 
-	io.use((s, next) => verifyTokenSocket(UserDb, s, next));
+	io.use(checkUserIdInCookies);
 	io.on("connection", (socket) => {
 		logger.info(`User ${socket.user.username} connected`);
 		// Join a room for the user.

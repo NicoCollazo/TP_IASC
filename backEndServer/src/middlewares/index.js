@@ -1,3 +1,3 @@
-const { verifyToken, verifyTokenSocket } = require("./jwt");
+const { verifyTokenSocket, checkUserIdInCookies } = require("./jwt");
 
-module.exports = { verifyToken, verifyTokenSocket };
+module.exports = { verifyTokenSocket, checkUserIdInCookies };
