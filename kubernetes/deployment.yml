@@ -4,7 +4,7 @@ metadata:
   name: tp-iasc-back
   namespace: default
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: tp-iasc-back
@@ -42,7 +42,7 @@ spec:
             - name: FRONT_PORT
               value: "3000"
             - name: STATEMANAGER_PORT
-              value: "8090" 
+              value: "8090"
           imagePullPolicy: Always
 ---
 apiVersion: apps/v1
