@@ -10,106 +10,106 @@ import Tooltip from "@mui/material/Tooltip";
 
 function ActionButtons({ item, handleEdit, handleDelete, handleCheck, hover }) {
 	return (
-        <Box>
-            <ButtonGroup
-                variant="contained"
-                aria-label="outlined primary button group"
-                sx={{
-                    position: "absolute",
-                    top: "20%",
-                    right: 8,
-                    display: hover,
-                }}
-            >
-                <Tooltip
-                    title="Edit"
-                    placement="top"
-                    componentsProps={{
-                        tooltip: {
-                            sx: {
-                                p: 1,
-                                bgcolor: "common.black",
-                                "& .MuiTooltip-arrow": {
-                                    color: "common.black",
-                                },
-                            },
-                        },
-                    }}
-                >
-                    <IconButton
-                        onClick={() => handleEdit(item, true)}
-                        size="small"
-                        aria-label="edit"
-                        key="editButton"
-                        sx={{
-                            color: "rgb(136 136 136)",
-                            borderRadius: 0,
-                            display: handleEdit? "" : "none"
-                        }}
-                    >
-                        <TiPencil />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip
-                    title="Delete"
-                    placement="top"
-                    componentsProps={{
-                        tooltip: {
-                            sx: {
-                                p: 1,
-                                bgcolor: "common.black",
-                                "& .MuiTooltip-arrow": {
-                                    color: "common.black",
-                                },
-                            },
-                        },
-                    }}
-                >
-                    <IconButton
-                        onClick={() => handleDelete(item)}
-                        aria-label="delete"
-                        size="small"
-                        key="trashButton"
-                        sx={{
-                            color: "rgb(136 136 136)",
-                            borderRadius: 0,
-                            display: handleDelete? "" : "none"
-                        }}
-                    >
-                        <IoTrashOutline />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip
-                    title="Mark as completedx"
-                    placement="top"
-                    componentsProps={{
-                        tooltip: {
-                            sx: {
-                                p: 1,
-                                bgcolor: "common.black",
-                                "& .MuiTooltip-arrow": {
-                                    color: "common.black",
-                                },
-                            },
-                        },
-                    }}
-                >
-                    <IconButton
-                        onClick={() => handleCheck(item)}
-                        aria-label="check"
-                        size="small"
-                        key="checkButton"
-                        sx={{
-                            color: "rgb(136 136 136)",
-                            borderRadius: 0,
-                            display: handleCheck? "" : "none"
-                        }}
-                    >
-                        <BsCheck2Circle />
-                    </IconButton>
-                </Tooltip>
-            </ButtonGroup>
-        </Box>
+		<Box>
+			<ButtonGroup
+				variant="contained"
+				aria-label="outlined primary button group"
+				sx={{
+					position: "absolute",
+					top: "20%",
+					right: 8,
+					display: hover,
+				}}
+			>
+				<Tooltip
+					title="Edit"
+					placement="top"
+					componentsProps={{
+						tooltip: {
+							sx: {
+								p: 1,
+								bgcolor: "common.black",
+								"& .MuiTooltip-arrow": {
+									color: "common.black",
+								},
+							},
+						},
+					}}
+				>
+					<IconButton
+						onClick={() => handleEdit(item, true)}
+						size="small"
+						aria-label="edit"
+						key="editButton"
+						sx={{
+							color: "rgb(136 136 136)",
+							borderRadius: 0,
+							display: handleEdit ? "" : "none",
+						}}
+					>
+						<TiPencil />
+					</IconButton>
+				</Tooltip>
+				<Tooltip
+					title="Delete"
+					placement="top"
+					componentsProps={{
+						tooltip: {
+							sx: {
+								p: 1,
+								bgcolor: "common.black",
+								"& .MuiTooltip-arrow": {
+									color: "common.black",
+								},
+							},
+						},
+					}}
+				>
+					<IconButton
+						onClick={() => handleDelete(item)}
+						aria-label="delete"
+						size="small"
+						key="trashButton"
+						sx={{
+							color: "rgb(136 136 136)",
+							borderRadius: 0,
+							display: handleDelete ? "" : "none",
+						}}
+					>
+						<IoTrashOutline />
+					</IconButton>
+				</Tooltip>
+				<Tooltip
+					title="Mark as completed"
+					placement="top"
+					componentsProps={{
+						tooltip: {
+							sx: {
+								p: 1,
+								bgcolor: "common.black",
+								"& .MuiTooltip-arrow": {
+									color: "common.black",
+								},
+							},
+						},
+					}}
+				>
+					<IconButton
+						onClick={() => handleCheck(item)}
+						aria-label="check"
+						size="small"
+						key="checkButton"
+						sx={{
+							color: "rgb(136 136 136)",
+							borderRadius: 0,
+							display: handleCheck ? "" : "none",
+						}}
+					>
+						<BsCheck2Circle />
+					</IconButton>
+				</Tooltip>
+			</ButtonGroup>
+		</Box>
 	);
 }
 
