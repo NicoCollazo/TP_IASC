@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
 	Avatar,
 	Button,
@@ -22,6 +22,8 @@ const theme = createTheme();
 export default function Auth() {
 	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
 	const navigate = useNavigate();
+	const inputUsername = useRef();
+	const inputPass = useRef();
 
 	const login = (event) => {
 		if (event.key === "Enter") {
@@ -32,12 +34,10 @@ export default function Auth() {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		const data = new FormData(event.currentTarget);
 		const loginValues = {
-			username: data.get("username"),
-			password: data.get("password"),
+			username: inputUsername.current.value,
+			password: inputPass.current.value,
 		};
-
 		axios
 			.post(AUTH_URL, loginValues, { withCredentials: true })
 			.then((response) => {
@@ -99,6 +99,7 @@ export default function Auth() {
 							name="username"
 							autoComplete="username"
 							autoFocus
+							inputRef={inputUsername}
 						/>
 						<TextField
 							margin="normal"
@@ -110,6 +111,7 @@ export default function Auth() {
 							id="password"
 							autoComplete="current-password"
 							onKeyUp={login}
+							inputRef={inputPass}
 						/>
 						<Button
 							type="submit"

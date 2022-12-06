@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
 	Avatar,
 	Button,
@@ -22,8 +22,10 @@ const USERS_URL = `${API_URL}/api/users`;
 const theme = createTheme();
 
 export default function Register() {
-	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
+	const inputPass = useRef();
+	const inputUsername = useRef();
 	const navigate = useNavigate();
+	const [errorNotif, setErrorNotif] = useState({ open: false, message: "" });
 
 	const login = (event) => {
 		if (event.key === "Enter") {
@@ -34,10 +36,9 @@ export default function Register() {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		const data = new FormData(event.currentTarget);
 		const registerValues = {
-			name: data.get("username"),
-			password: data.get("password"),
+			name: inputUsername.current.value,
+			password: inputPass.current.value,
 		};
 
 		axios
@@ -120,6 +121,7 @@ export default function Register() {
 							name="username"
 							autoComplete="username"
 							autoFocus
+							inputRef={inputUsername}
 						/>
 						<TextField
 							margin="normal"
@@ -131,6 +133,7 @@ export default function Register() {
 							id="password"
 							autoComplete="current-password"
 							onKeyUp={login}
+							inputRef={inputPass}
 						/>
 						<Button
 							type="submit"
