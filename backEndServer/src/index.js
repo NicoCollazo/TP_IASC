@@ -15,15 +15,15 @@ const baseURL = process.env.FRONT_SERVICE_URL || "http://localhost";
 const frontURL = `${baseURL}:${frontPort}`;
 
 const getAllLocalhostPorts = () => {
-	var origins = [];
-	for (var i = 0; i <= 65536; i++) {
-		origins.push(`http://127.0.0.1:${i.toString()}`);
-	}
-	return origins;
+  var origins = [];
+  for (var i = 0; i <= 65536; i++) {
+    origins.push(`http://127.0.0.1:${i.toString()}`);
+  }
+  return origins;
 };
 
 const origins =
-	process.env.NODE_ENV === "development" ? [frontURL] : getAllLocalhostPorts();
+  process.env.NODE_ENV === "development" ? [frontURL] : getAllLocalhostPorts();
 // Api Configuration.
 app.set("json spaces", 4);
 app.use(express.json());
@@ -33,7 +33,8 @@ app.listen(apiPort);
 // Socket Server
 const server = http.createServer(app);
 const io = new Server(server, {
-	cors: { origin: origins, credentials: true },
+  cors: { origin: origins, credentials: true },
+  transports: ["websocket"],
 });
 server.listen(ioPort);
 
