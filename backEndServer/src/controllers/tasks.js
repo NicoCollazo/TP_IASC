@@ -29,7 +29,7 @@ class TasksController extends BaseController {
 		this._promiseEmitWithTimeout(
 			stateManagerSocket.emit.bind(stateManagerSocket),
 			"attemptToEditTask",
-			{ task, workspace }
+			{ task }
 		)
 			.then((acceptedTask) => {
 				TaskManager.edit(acceptedTask).then((t) => {

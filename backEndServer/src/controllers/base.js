@@ -5,16 +5,17 @@ class BaseController {
 	// !Important: Dont forget to bind the emitFunc before passing it.
 	_promiseEmitWithTimeout = (emitFunc, endpoint, data) => {
 		return new Promise((res, rej) => {
-			setTimeout(() => {
+			const timeoutId = setTimeout(() => {
 				const err = "Unable to access stateManager";
 				logger.error(err);
 				rej("Internal Server Error");
 			}, 6000);
 			emitFunc(endpoint, data, (d) => {
-				logger.debug(`Received ${JSON.stringify(d)} from the stateManager`);
+				logger.info(`Received ${JSON.stringify(d)} from the stateManager`);
 				if (d.error !== undefined) {
 					rej(d.error);
 				}
+				clearTimeout(timeoutId); // Clear timeout so it doesn't cause issues.
 				res(d);
 			});
 		});

@@ -74,6 +74,7 @@ const initStateManagerSocketApp = (ioServer) => {
 	});
 
 	stateManagerSocket.on("commitEditTask", ({ task, workspace }) => {
+		logger.debug("Code being executed at commitEditTask endpoint");
 		logger.info(`Editing task ${task.id} in workspace ${workspace.id}`);
 		TaskManager.edit(task).then((editedTask) =>
 			ioServer.in(workspace.id).emit("taskEdited", editedTask)

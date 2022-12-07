@@ -72,6 +72,16 @@ const generateLists = () =>
 		{}
 	);
 
+const findTaskInElems = (elements, task) => {
+	for (const key of Object.keys(elements)) {
+		const board = elements[key];
+		const elemFoundIdx = board.findIndex((t) => t.id === task.id);
+		if (elemFoundIdx !== -1) {
+			return { board: key, idx: elemFoundIdx };
+		}
+	}
+};
+
 function DragList({ workspaceName }) {
 	const navigate = useNavigate();
 	const socket = useContext(SocketContext);
@@ -98,7 +108,6 @@ function DragList({ workspaceName }) {
 		successCallback,
 		errCallback = handleSocketError
 	) => {
-		console.log(element);
 		if (element.message !== undefined || element.error !== undefined) {
 			return errCallback(element);
 		}
@@ -107,11 +116,22 @@ function DragList({ workspaceName }) {
 
 	const handleSocketEdit = (editedTask) => {
 		setElements((prevTasks) => {
-			const newTasks = Object.assign({}, prevTasks);
-			const editedTaskIdx = newTasks[editedTask.board].findIndex(
-				(t) => t.id === editedTask.id
+			const newTasks = { ...prevTasks };
+			const { board: taskBoard, idx: taskIdx } = findTaskInElems(
+				newTasks,
+				editedTask
 			);
-			newTasks[editedTask.board][editedTaskIdx] = editedTask;
+
+			if (taskBoard !== editedTask.board) {
+				// Handles moving between different boards.
+				newTasks[taskBoard] = newTasks[taskBoard].filter(
+					(t) => t.id !== editedTask.id
+				);
+				newTasks[editedTask.board].push(editedTask);
+			} else {
+				// Handles normal task editing.
+				newTasks[taskBoard][taskIdx] = editedTask;
+			}
 			return newTasks;
 		});
 	};
@@ -181,10 +201,17 @@ function DragList({ workspaceName }) {
 		let elementIndex = elementsCopy[item.board].findIndex(
 			(i) => i.id === item.id
 		);
-		elementsCopy[item.board][elementIndex].title = e.target.value;
-		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
-			handleAckMessage(t, handleSocketEdit)
-		);
+		try {
+			elementsCopy[item.board][elementIndex].title = e.target.value;
+			socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
+				handleAckMessage(t, handleSocketEdit)
+			);
+		} catch (err) {
+			setErrorNotif({
+				open: true,
+				message: `Task was deleted by another user. Please close the edit view.`,
+			});
+		}
 	}
 
 	function handleChangeItemContent(e, item) {
@@ -192,10 +219,18 @@ function DragList({ workspaceName }) {
 		let elementIndex = elementsCopy[item.board].findIndex(
 			(i) => i.id === item.id
 		);
-		elementsCopy[item.board][elementIndex].content = e.target.value;
-		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
-			handleAckMessage(t, handleSocketEdit)
-		);
+		try {
+			elementsCopy[item.board][elementIndex].content = e.target.value;
+			socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
+				handleAckMessage(t, handleSocketEdit)
+			);
+		} catch (err) {
+			setErrorNotif({
+				open: true,
+				message: `Task was deleted by another user. Please close the edit view.`,
+			});
+			return;
+		}
 	}
 
 	function handleDelete(item) {
@@ -209,7 +244,8 @@ function DragList({ workspaceName }) {
 		let elementIndex = elementsCopy[item.board].findIndex(
 			(i) => i.id === item.id
 		);
-		elementsCopy[item.board][elementIndex].done = !elementsCopy[item.board][elementIndex].done;
+		elementsCopy[item.board][elementIndex].done =
+			!elementsCopy[item.board][elementIndex].done;
 		socket.emit("editTask", elementsCopy[item.board][elementIndex], (t) =>
 			handleAckMessage(t, handleSocketEdit)
 		);
@@ -232,7 +268,7 @@ function DragList({ workspaceName }) {
 
 	const onDragEnd = (result) => {
 		//TODO: Check why its so slow on the movement.
-		if (!result.destination) {
+		if (!result.destination || result.destination === result.source) {
 			return;
 		}
 		const prevBoard = result.source.droppableId;
